@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ProjectMaui.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:ProjectMaui.View"
+    FlyoutBehavior="Flyout">
+
+    <TabBar>
+        <ShellContent
+            Title="Bác sĩ"
+            Icon="doctor_icon.png"
+            ContentTemplate="{DataTemplate local:DoctorListPage}" 
+            Route="doctorlist"/>
+
+        <ShellContent
+            Title="Lịch hẹn"
+            Icon="appointment_icon.png"
+            ContentTemplate="{DataTemplate local:AppointmentListPage}" 
+            Route="appointmentlist"/>
+    </TabBar>
+
+</Shell>
+    
+   
+<!--AppShell.xaml: Định nghĩa cấu trúc điều hướng (Shell UI)-->
+<!--Shell giúp đơn giản hóa việc xây dựng giao diện dạng tab bars, flyout menus.-->

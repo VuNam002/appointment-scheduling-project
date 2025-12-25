@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ProjectMaui.ViewModels"
+             x:Class="ProjectMaui.View.DoctorListPage"
+             Title="Danh sách Bác sĩ">
+
+    <ContentPage.BindingContext>
+        <viewmodels:DoctorListViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="Auto,*" Padding="10">
+
+        <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,0,0,15">
+
+            <Label Text="Chọn Bác Sĩ" 
+                   FontSize="24" 
+                   FontAttributes="Bold"
+                   TextColor="#2C3E50"/>
+
+            <Frame BorderColor="#E0E0E0" 
+                   BackgroundColor="White"
+                   CornerRadius="10"
+                   Padding="10"
+                   HasShadow="True">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                    <Label Grid.Column="0" 
+                           Text="Khoa:" 
+                           VerticalOptions="Center"
+                           FontSize="16"
+                           TextColor="#555"/>
+                    <Picker Grid.Column="1"
+                            ItemsSource="{Binding Departments}"
+                            ItemDisplayBinding="{Binding DepartmentName}"
+                            SelectedItem="{Binding SelectedDepartment}"
+                            Title="Chọn khoa"
+                            FontSize="16"/>
+                </Grid>
+            </Frame>
+
+            <Button Text="Làm mới" 
+                    Command="{Binding RefreshCommand}"
+                    BackgroundColor="#3498DB"
+                    TextColor="White"
+                    CornerRadius="10"
+                    HeightRequest="45"/>
+        </VerticalStackLayout>
+
+        <ActivityIndicator Grid.Row="1"
+                          IsRunning="{Binding IsLoading}"
+                          IsVisible="{Binding IsLoading}"
+                          Color="#3498DB"
+                          VerticalOptions="Center"
+                          HorizontalOptions="Center"
+                          WidthRequest="50"
+                          HeightRequest="50"/>
+
+        <CollectionView Grid.Row="1" 
+                       ItemsSource="{Binding Doctors}"
+                       SelectionMode="Single"
+                       IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"
+                       Margin="0,5,0,0">
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center" 
+                                    HorizontalOptions="Center"
+                                    Spacing="10">
+                    <Label Text="📋" 
+                           FontSize="60"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Không có bác sĩ nào" 
+                           FontSize="18"
+                           TextColor="#999"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Margin="0,5" 
+                           Padding="15"
+                           BackgroundColor="White"
+                           BorderColor="#E0E0E0"
+                           CornerRadius="15"
+                           HasShadow="True">
+
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnDoctorTapped"/>
+                        </Frame.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="80,*,Auto" ColumnSpacing="15">
+
+                            <Frame Grid.Column="0" 
+                                   CornerRadius="40"
+                                   IsClippedToBounds="True"
+                                   Padding="0"
+                                   HeightRequest="80"
+                                   WidthRequest="80"
+                                   HasShadow="False"
+                                   BorderColor="#E0E0E0">
+                                <Image Source="{Binding Image}"
+                                       Aspect="AspectFill"
+                                       HeightRequest="80"
+                                       WidthRequest="80"/>
+                            </Frame>
+
+                            <VerticalStackLayout Grid.Column="1" 
+                                               Spacing="5"
+                                               VerticalOptions="Center">
+                                <Label Text="{Binding DoctorName}" 
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#2C3E50"/>
+
+                                <Label FontSize="14" TextColor="#7F8C8D">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text=" " />
+                                            <Span Text="{Binding Specialization}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+
+                                <Label FontSize="14" TextColor="#7F8C8D">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text=" " />
+                                            <Span Text="{Binding DepartmentName}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+
+                                <Label FontSize="14" TextColor="#7F8C8D">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="
+                                                  
+                                                  " />
+                                            <Span Text="{Binding Phone}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </VerticalStackLayout>
+
+                            <Label Grid.Column="2"
+                                   Text="›"
+                                   FontSize="30"
+                                   TextColor="#3498DB"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

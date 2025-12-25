@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProjectMaui.View.BookingPage"
+             Title="Đặt lịch khám">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Doctor Info Card -->
+            <Frame BackgroundColor="White"
+                   BorderColor="#3498DB"
+                   CornerRadius="15"
+                   Padding="15"
+                   HasShadow="True">
+                <Grid ColumnDefinitions="80,*" ColumnSpacing="15">
+
+                    <!-- Doctor Image -->
+                    <Frame Grid.Column="0" 
+                           CornerRadius="40"
+                           IsClippedToBounds="True"
+                           Padding="0"
+                           HeightRequest="80"
+                           WidthRequest="80"
+                           HasShadow="False"
+                           BorderColor="#E0E0E0">
+                        <Image Source="{Binding SelectedDoctor.Image}"
+                               Aspect="AspectFill"/>
+                    </Frame>
+
+                    <!-- Doctor Details -->
+                    <VerticalStackLayout Grid.Column="1" Spacing="5">
+                        <Label Text="{Binding SelectedDoctor.DoctorName}" 
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#2C3E50"/>
+                        <Label Text="{Binding SelectedDoctor.Specialization}" 
+                               FontSize="14"
+                               TextColor="#7F8C8D"/>
+                        <Label Text="{Binding SelectedDoctor.DepartmentName}" 
+                               FontSize="14"
+                               TextColor="#7F8C8D"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- Schedule Info -->
+            <Frame BackgroundColor="#E8F8F5"
+                   BorderColor="#1ABC9C"
+                   CornerRadius="10"
+                   Padding="15"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="📅 Lịch làm việc" 
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#16A085"/>
+                    <Label Text="{Binding ScheduleInfo}" 
+                           FontSize="14"
+                           TextColor="#2C3E50"
+                           LineBreakMode="WordWrap"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Patient Information -->
+            <Label Text="Thông tin bệnh nhân" 
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="#2C3E50"/>
+
+            <Frame BorderColor="#E0E0E0" 
+                   BackgroundColor="White"
+                   CornerRadius="10"
+                   Padding="15"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="15">
+
+                    <!-- Name -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Họ và tên *" FontSize="14" TextColor="#555"/>
+                        <Entry Text="{Binding PatientName}"
+                               Placeholder="Nhập họ tên đầy đủ"
+                               FontSize="16"/>
+                    </VerticalStackLayout>
+
+                    <!-- Phone -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Số điện thoại *" FontSize="14" TextColor="#555"/>
+                        <Entry Text="{Binding PatientPhone}"
+                               Placeholder="Nhập số điện thoại"
+                               Keyboard="Telephone"
+                               MaxLength="11"
+                               FontSize="16"/>
+                    </VerticalStackLayout>
+
+                    <!-- Address -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Địa chỉ" FontSize="14" TextColor="#555"/>
+                        <Entry Text="{Binding PatientAddress}"
+                               Placeholder="Nhập địa chỉ"
+                               FontSize="16"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Appointment Date & Time -->
+            <Label Text="Chọn ngày và giờ khám" 
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="#2C3E50"/>
+
+            <Frame BorderColor="#E0E0E0" 
+                   BackgroundColor="White"
+                   CornerRadius="10"
+                   Padding="15"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="15">
+
+                    <!-- Date -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Ngày khám *" FontSize="14" TextColor="#555"/>
+                        <DatePicker Date="{Binding SelectedDate}"
+                                   MinimumDate="{x:Static System:DateTime.Today}"
+                                   Format="dd/MM/yyyy"
+                                   FontSize="16"/>
+                    </VerticalStackLayout>
+
+                    <!-- Time -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Giờ khám *" FontSize="14" TextColor="#555"/>
+                        <TimePicker Time="{Binding SelectedTime}"
+                                   Format="HH:mm"
+                                   FontSize="16"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Reason -->
+            <VerticalStackLayout Spacing="10">
+                <Label Text="Lý do khám" 
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="#2C3E50"/>
+
+                <Frame BorderColor="#E0E0E0" 
+                       BackgroundColor="White"
+                       CornerRadius="10"
+                       Padding="15"
+                       HasShadow="True">
+                    <Editor Text="{Binding Reason}"
+                            Placeholder="Mô tả triệu chứng hoặc lý do khám bệnh"
+                            AutoSize="TextChanges"
+                            MinimumHeightRequest="100"
+                            FontSize="16"/>
+                </Frame>
+            </VerticalStackLayout>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                              IsVisible="{Binding IsLoading}"
+                              Color="#3498DB"
+                              WidthRequest="40"
+                              HeightRequest="40"/>
+
+            <!-- Book Button -->
+            <Button Text="Đặt lịch khám"
+                    Command="{Binding BookAppointmentCommand}"
+                    BackgroundColor="#27AE60"
+                    TextColor="White"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    CornerRadius="10"
+                    HeightRequest="55"
+                    IsEnabled="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"
+                    Margin="0,10,0,20"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
