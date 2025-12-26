@@ -4,9 +4,17 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:ProjectMaui.View"
-    FlyoutBehavior="Flyout">
+    Shell.FlyoutBehavior="Disabled"
+    Title="ProjectMaui">
 
-    <TabBar>
+    <ShellContent
+        ContentTemplate="{DataTemplate local:LoginPage}"
+        Route="LoginPage"
+        Shell.NavBarIsVisible="False"
+        Shell.TabBarIsVisible="False" />
+
+    <TabBar Route="MainPage">
+
         <ShellContent
             Title="Bác sĩ"
             ContentTemplate="{DataTemplate local:DoctorListPage}" 
@@ -16,10 +24,12 @@
             Title="Lịch hẹn"
             ContentTemplate="{DataTemplate local:AppointmentListPage}" 
             Route="appointmentlist"/>
+
+        <ShellContent
+            Title="Cá nhân"
+            ContentTemplate="{DataTemplate local:MainPage}" 
+            Route="profile"/>
+
     </TabBar>
 
 </Shell>
-    
-   
-<!--AppShell.xaml: Định nghĩa cấu trúc điều hướng (Shell UI)-->
-<!--Shell giúp đơn giản hóa việc xây dựng giao diện dạng tab bars, flyout menus.-->

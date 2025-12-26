@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProjectMaui.View.LoginPage"
+             Title="Đăng nhập"
+             Shell.NavBarIsVisible="False">
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="30" VerticalOptions="Center">
+
+            <Image Source="logo_yte.jpg" 
+                   HeightRequest="120" 
+                   HorizontalOptions="Center" />
+
+            <Label Text="HANA HOSPITAL"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="#2C3E50"/>
+
+            <VerticalStackLayout Spacing="15" Margin="0,30,0,0">
+
+                <Entry Placeholder="Số điện thoại"
+                       Text="{Binding Phone}"
+                       Keyboard="Telephone"
+                       HeightRequest="50"/>
+
+                <Entry Placeholder="Mật khẩu"
+                       Text="{Binding Password}"
+                       IsPassword="True"
+                       HeightRequest="50"/>
+
+                <Button Text="Đăng nhập"
+                        Command="{Binding LoginCommand}"
+                        BackgroundColor="#3498DB"
+                        FontAttributes="Bold"
+                        CornerRadius="25"
+                        HeightRequest="50"/>
+
+                <ActivityIndicator IsRunning="{Binding IsLoading}" 
+                                   IsVisible="{Binding IsLoading}"
+                                   Color="#3498DB"/>
+
+            </VerticalStackLayout>
+
+            <Label Text="Chưa có tài khoản? Đăng ký ngay"
+                   TextColor="#3498DB"
+                   HorizontalOptions="Center"
+                   TextDecorations="Underline">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoToRegisterCommand}"/>
+                </Label.GestureRecognizers>
+            </Label>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -23,10 +23,13 @@ namespace ProjectMaui
             builder.Services.AddSingleton<DepartmentService>();
             builder.Services.AddSingleton<PatientService>();
             builder.Services.AddSingleton<AppointmentService>();
+            builder.Services.AddSingleton<AuthService>();
 
             // --- 2. ĐĂNG KÝ VIEWMODELS ---
             builder.Services.AddTransient<DoctorListViewModel>();
             builder.Services.AddTransient<AppointmentListViewModel>();
+            builder.Services.AddTransient<LoginViewModel>();
+            builder.Services.AddTransient<LoginPage>();
 
             // --- 3. ĐĂNG KÝ PAGES ---
             builder.Services.AddTransient<MainPage>();

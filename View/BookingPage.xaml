@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
              x:Class="ProjectMaui.View.BookingPage"
              Title="Đặt lịch khám">
 
@@ -55,7 +56,7 @@
                            FontSize="16"
                            FontAttributes="Bold"
                            TextColor="#16A085"/>
-                    <Label Text="{Binding ScheduleInfo}" 
+                    <Label Text="{Binding ScheduleInfo, TargetNullValue='Chưa có thông tin lịch làm việc'}" 
                            FontSize="14"
                            TextColor="#2C3E50"
                            LineBreakMode="WordWrap"/>

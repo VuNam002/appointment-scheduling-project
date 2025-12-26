@@ -1,33 +1,18 @@
-﻿using System;
+﻿// ViewModels/DoctorListViewModel.cs
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using ProjectMaui.Models;
 using ProjectMaui.Services;
 
 namespace ProjectMaui.ViewModels
 {
-    public class DoctorListViewModel : INotifyPropertyChanged
+    public class DoctorListViewModel : BaseViewModel 
     {
-
         private readonly DoctorService _doctorService;
         private readonly DepartmentService _departmentService;
 
-        public ObservableCollection<DoctorInfoModel> Doctors { get; set; }
-        public ObservableCollection<DepartmentModel> Departments { get; set; }
-
-        private bool _isLoading;
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set
-            {
-                _isLoading = value;
-                OnPropertyChanged();
-            }
-        }
+        public ObservableCollection<DoctorInfoModel> Doctors { get; } = new();
+        public ObservableCollection<DepartmentModel> Departments { get; } = new();
 
         private DepartmentModel _selectedDepartment;
         public DepartmentModel SelectedDepartment
@@ -35,9 +20,7 @@ namespace ProjectMaui.ViewModels
             get => _selectedDepartment;
             set
             {
-                _selectedDepartment = value;
-                OnPropertyChanged();
-                if (value != null)
+                if (SetProperty(ref _selectedDepartment, value) && value != null)
                 {
                     _ = LoadDoctorsByDepartmentAsync(value.DepartmentId);
                 }
@@ -45,21 +28,17 @@ namespace ProjectMaui.ViewModels
         }
 
         public ICommand LoadDoctorsCommand { get; }
-        public ICommand LoadDepartmentsCommand { get; }
         public ICommand RefreshCommand { get; }
 
         public DoctorListViewModel(DoctorService doctorService, DepartmentService departmentService)
         {
             _doctorService = doctorService;
             _departmentService = departmentService;
-            Doctors = new ObservableCollection<DoctorInfoModel>();
-            Departments = new ObservableCollection<DepartmentModel>();
+            Title = "Danh sách Bác sĩ";
 
             LoadDoctorsCommand = new Command(async () => await LoadDoctorsAsync());
-            LoadDepartmentsCommand = new Command(async () => await LoadDepartmentsAsync());
             RefreshCommand = new Command(async () => await RefreshDataAsync());
 
-            // Load dữ liệu ban đầu
             _ = InitializeAsync();
         }
 
@@ -71,85 +50,45 @@ namespace ProjectMaui.ViewModels
 
         private async Task LoadDoctorsAsync()
         {
+            if (IsLoading) return;
             IsLoading = true;
             try
             {
                 var doctors = await _doctorService.GetDoctorsAsync();
                 Doctors.Clear();
-                foreach (var doctor in doctors)
-                {
-                    Doctors.Add(doctor);
-                }
+                foreach (var d in doctors) Doctors.Add(d);
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error loading doctors: {ex.Message}");
-            }
-            finally
-            {
-                IsLoading = false;
-            }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.Message); }
+            finally { IsLoading = false; }
         }
 
         private async Task LoadDepartmentsAsync()
         {
             try
             {
-                var departments = await _departmentService.GetDepartmentsAsync();
+                var depts = await _departmentService.GetDepartmentsAsync();
                 Departments.Clear();
                 Departments.Add(new DepartmentModel { DepartmentId = 0, DepartmentName = "Tất cả" });
-                foreach (var dept in departments)
-                {
-                    Departments.Add(dept);
-                }
+                foreach (var dept in depts) Departments.Add(dept);
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error loading departments: {ex.Message}");
-            }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.Message); }
         }
 
-        private async Task LoadDoctorsByDepartmentAsync(int departmentId)
+        private async Task LoadDoctorsByDepartmentAsync(int deptId)
         {
             IsLoading = true;
             try
             {
-                var doctors = departmentId == 0
+                var doctors = deptId == 0
                     ? await _doctorService.GetDoctorsAsync()
-                    : await _doctorService.GetDoctorsByDepartmentAsync(departmentId);
+                    : await _doctorService.GetDoctorsByDepartmentAsync(deptId);
 
                 Doctors.Clear();
-                foreach (var doctor in doctors)
-                {
-                    Doctors.Add(doctor);
-                }
+                foreach (var d in doctors) Doctors.Add(d);
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error loading doctors by department: {ex.Message}");
-            }
-            finally
-            {
-                IsLoading = false;
-            }
+            finally { IsLoading = false; }
         }
 
-        private async Task RefreshDataAsync()
-        {
-            if (SelectedDepartment != null && SelectedDepartment.DepartmentId > 0)
-            {
-                await LoadDoctorsByDepartmentAsync(SelectedDepartment.DepartmentId);
-            }
-            else
-            {
-                await LoadDoctorsAsync();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        private async Task RefreshDataAsync() => await InitializeAsync();
     }
 }
