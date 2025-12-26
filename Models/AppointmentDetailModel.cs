@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using ProjectMaui.Services;
 
 namespace ProjectMaui.Models
 {
@@ -31,6 +32,8 @@ namespace ProjectMaui.Models
                 if (SetProperty(ref _status, value))
                 {
                     OnPropertyChanged(nameof(StatusColor)); // Báo cho UI biết StatusColor cũng thay đổi
+                    OnPropertyChanged(nameof(CanCancel));
+                    OnPropertyChanged(nameof(CanUpdateStatus));
                 }
             }
         }
@@ -44,11 +47,16 @@ namespace ProjectMaui.Models
                     "Chờ xác nhận" => "#F39C12",
                     "Đã xác nhận" => "#3498DB",
                     "Hoàn thành" => "#27AE60",
+                    "Đã hoàn thành" => "#27AE60", // Xanh lá
                     "Đã hủy" => "#E74C3C",
                     _ => "#95A5A6"
                 };
             }
         }
+
+        public bool CanCancel => UserSession.Current.Role == "Patient" && (Status == "Chờ xác nhận" || Status == "Đã xác nhận");
+        public bool CanUpdateStatus => (UserSession.Current.Role == "Doctor" || UserSession.Current.Role == "Admin") && (Status == "Chờ xác nhận" || Status == "Đã xác nhận");
+
 
         public string Notes { get; set; }
         public string DoctorPhone { get; set; }

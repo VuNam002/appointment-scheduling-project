@@ -29,6 +29,7 @@ namespace ProjectMaui.ViewModels
         public ICommand RefreshCommand { get; }
         public ICommand CancelAppointmentCommand { get; }
         public ICommand ViewDetailCommand { get; }
+        public ICommand UpdateStatusCommand { get; }
 
         public AppointmentListViewModel()
         {
@@ -41,6 +42,7 @@ namespace ProjectMaui.ViewModels
             RefreshCommand = new Command(async () => await LoadAppointmentsAsync());
             CancelAppointmentCommand = new Command<int>(async (id) => await CancelAppointmentAsync(id));
             ViewDetailCommand = new Command<int>(async (id) => await OnViewDetail(id));
+            UpdateStatusCommand = new Command<AppointmentDetailModel>(async (model) => await UpdateAppointmentStatusAsync(model));
 
             // Tải dữ liệu ngay khi mở màn hình
             LoadAppointmentsAsync();
@@ -139,6 +141,68 @@ namespace ProjectMaui.ViewModels
         }
 
         // --- HÀM XEM CHI TIẾT ---
+        private async Task UpdateAppointmentStatusAsync(AppointmentDetailModel appointment)
+        {
+            if (appointment == null) return;
+
+            string[] possibleStatuses = GetPossibleNextStatuses(appointment.Status);
+
+            if (possibleStatuses.Length == 0)
+            {
+                await Shell.Current.DisplayAlert("Thông báo", "Không có hành động nào cho trạng thái này.", "OK");
+                return;
+            }
+
+            string newStatus = await Shell.Current.DisplayActionSheet("Cập nhật trạng thái", "Hủy", null, possibleStatuses);
+
+            if (string.IsNullOrEmpty(newStatus) || newStatus == "Hủy")
+            {
+                return;
+            }
+
+            string notes = appointment.Reason; 
+            if (newStatus == "Đã hủy")
+            {
+                notes = await Shell.Current.DisplayPromptAsync("Lý do", "Nhập lý do hủy:", "OK", "Hủy", initialValue: appointment.Reason);
+                if (notes == null) return; 
+            }
+
+            IsLoading = true;
+            try
+            {
+                bool success = await _appointmentService.UpdateAppointmentStatusAsync(appointment.AppointmentId, newStatus, notes);
+                if (success)
+                {
+                    await Shell.Current.DisplayAlert("Thành công", "Đã cập nhật trạng thái.", "OK");
+                    appointment.Status = newStatus;
+                    appointment.Reason = notes;
+                    FilterAppointments();
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Lỗi", "Không thể cập nhật trạng thái.", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Lỗi", ex.Message, "OK");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        private string[] GetPossibleNextStatuses(string currentStatus)
+        {
+            return currentStatus switch
+            {
+                "Chờ xác nhận" => new[] { "Đã xác nhận", "Đã hủy" },
+                "Đã xác nhận" => new[] { "Đã hoàn thành", "Đã hủy" },
+                _ => Array.Empty<string>()
+            };
+        }
+
         private async Task OnViewDetail(int appointmentId)
         {
             if (appointmentId <= 0) return;

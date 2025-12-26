@@ -27,7 +27,7 @@
                         <x:String>Tất cả</x:String>
                         <x:String>Chờ xác nhận</x:String>
                         <x:String>Đã xác nhận</x:String>
-                        <x:String>Hoàn thành</x:String>
+                        <x:String>Đã hoàn thành</x:String>
                         <x:String>Đã hủy</x:String>
                     </Picker.Items>
                 </Picker>
@@ -173,7 +173,18 @@
                                         FontSize="14"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:AppointmentListViewModel}}, Path=CancelAppointmentCommand}"
                                         CommandParameter="{Binding AppointmentId}"
-                                        IsVisible="{Binding Status, Converter={StaticResource StatusToCancelButtonVisibilityConverter}}"/>
+                                        IsVisible="{Binding CanCancel}"/>
+                                
+                                <Button Grid.Column="1"
+                                        Text="Cập nhật"
+                                        BackgroundColor="#27AE60"
+                                        TextColor="White"
+                                        CornerRadius="8"
+                                        HeightRequest="40"
+                                        FontSize="14"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:AppointmentListViewModel}}, Path=UpdateStatusCommand}"
+                                        CommandParameter="{Binding .}"
+                                        IsVisible="{Binding CanUpdateStatus}"/>
                             </Grid>
                         </Grid>
                     </Frame>
