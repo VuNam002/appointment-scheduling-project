@@ -1,32 +1,20 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using ProjectMaui.Models;
+﻿using ProjectMaui.Models;
 using ProjectMaui.Services;
+using ProjectMaui.View;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace ProjectMaui.ViewModels
 {
-    public class AppointmentListViewModel : INotifyPropertyChanged
+    // Kế thừa BaseViewModel cho gọn (đỡ phải viết lại INotifyPropertyChanged)
+    public class AppointmentListViewModel : BaseViewModel
     {
         private readonly AppointmentService _appointmentService;
 
-        public ObservableCollection<AppointmentDetailModel> Appointments { get; set; }
-        public ObservableCollection<AppointmentDetailModel> FilteredAppointments { get; set; }
+        // List gốc để lưu trữ
+        private List<AppointmentDetailModel> _allAppointments;
 
-        private bool _isLoading;
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set
-            {
-                _isLoading = value;
-                OnPropertyChanged();
-            }
-        }
+        public ObservableCollection<AppointmentDetailModel> FilteredAppointments { get; set; }
 
         private string _selectedFilter = "Tất cả";
         public string SelectedFilter
@@ -34,45 +22,63 @@ namespace ProjectMaui.ViewModels
             get => _selectedFilter;
             set
             {
-                _selectedFilter = value;
-                OnPropertyChanged();
-                FilterAppointments();
+                if (SetProperty(ref _selectedFilter, value))
+                {
+                    FilterAppointments(); // Lọc lại ngay khi đổi picker
+                }
             }
         }
 
-        public ICommand LoadAppointmentsCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand CancelAppointmentCommand { get; }
+        public ICommand ViewDetailCommand { get; } // Lệnh xem chi tiết
 
         public AppointmentListViewModel(AppointmentService appointmentService)
         {
             _appointmentService = appointmentService;
-            Appointments = new ObservableCollection<AppointmentDetailModel>();
+            _allAppointments = new List<AppointmentDetailModel>();
             FilteredAppointments = new ObservableCollection<AppointmentDetailModel>();
 
-            LoadAppointmentsCommand = new Command(async () => await LoadAppointmentsAsync());
             RefreshCommand = new Command(async () => await LoadAppointmentsAsync());
+
+            // Logic hủy lịch
             CancelAppointmentCommand = new Command<int>(async (id) => await CancelAppointmentAsync(id));
 
-            _ = LoadAppointmentsAsync();
+            // Logic xem chi tiết
+            ViewDetailCommand = new Command<int>(async (id) => await OnViewDetail(id));
+
+            // Tải dữ liệu ngay lập tức
+            LoadAppointmentsAsync();
         }
 
         private async Task LoadAppointmentsAsync()
         {
+            if (IsLoading) return;
             IsLoading = true;
+
             try
             {
-                var appointments = await _appointmentService.GetAppointmentsAsync();
-                Appointments.Clear();
-                foreach (var appointment in appointments)
+                // Bước 1: Thử lấy theo ID bệnh nhân đang đăng nhập
+                int patientId = UserSession.Current.PatientId;
+                var appointments = await _appointmentService.GetAppointmentsByPatientAsync(patientId);
+
+                // --- SỬA LẠI: LOGIC DỰ PHÒNG (FALLBACK) ---
+                // Nếu không tìm thấy lịch nào (hoặc chưa đăng nhập), thì lấy TẤT CẢ để hiển thị cho bạn test
+                if (appointments == null || appointments.Count == 0)
                 {
-                    Appointments.Add(appointment);
+                    System.Diagnostics.Debug.WriteLine("Không thấy lịch riêng, đang tải TOÀN BỘ dữ liệu...");
+                    appointments = await _appointmentService.GetAppointmentsAsync();
                 }
+
+                _allAppointments = appointments; // Lưu vào list gốc
+
+                // Hiển thị ra màn hình
                 FilterAppointments();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading appointments: {ex.Message}");
+                await Shell.Current.DisplayAlert("Lỗi", "Không tải được dữ liệu", "OK");
             }
             finally
             {
@@ -82,26 +88,27 @@ namespace ProjectMaui.ViewModels
 
         private void FilterAppointments()
         {
+            if (_allAppointments == null) return;
+
             FilteredAppointments.Clear();
 
-            var filtered = SelectedFilter switch
-            {
-                "Chờ xác nhận" => Appointments.Where(a => a.Status == "Chờ xác nhận"),
-                "Đã xác nhận" => Appointments.Where(a => a.Status == "Đã xác nhận"),
-                "Hoàn thành" => Appointments.Where(a => a.Status == "Hoàn thành"),
-                "Đã hủy" => Appointments.Where(a => a.Status == "Đã hủy"),
-                _ => Appointments
-            };
+            IEnumerable<AppointmentDetailModel> query = _allAppointments;
 
-            foreach (var appointment in filtered)
+            // Logic lọc theo trạng thái
+            if (SelectedFilter != "Tất cả")
             {
-                FilteredAppointments.Add(appointment);
+                query = query.Where(a => a.Status == SelectedFilter);
+            }
+
+            foreach (var item in query)
+            {
+                FilteredAppointments.Add(item);
             }
         }
 
         private async Task CancelAppointmentAsync(int appointmentId)
         {
-            bool confirm = await App.Current.MainPage.DisplayAlert(
+            bool confirm = await Shell.Current.DisplayAlert(
                 "Xác nhận",
                 "Bạn có chắc muốn hủy lịch hẹn này?",
                 "Có",
@@ -110,7 +117,7 @@ namespace ProjectMaui.ViewModels
 
             if (!confirm) return;
 
-            string reason = await App.Current.MainPage.DisplayPromptAsync(
+            string reason = await Shell.Current.DisplayPromptAsync(
                 "Lý do hủy",
                 "Vui lòng nhập lý do hủy lịch:",
                 "OK",
@@ -125,17 +132,17 @@ namespace ProjectMaui.ViewModels
                 bool success = await _appointmentService.CancelAppointmentAsync(appointmentId, reason);
                 if (success)
                 {
-                    await App.Current.MainPage.DisplayAlert("Thành công", "Đã hủy lịch hẹn", "OK");
-                    await LoadAppointmentsAsync();
+                    await Shell.Current.DisplayAlert("Thành công", "Đã hủy lịch hẹn", "OK");
+                    await LoadAppointmentsAsync(); // Tải lại danh sách
                 }
                 else
                 {
-                    await App.Current.MainPage.DisplayAlert("Lỗi", "Không thể hủy lịch hẹn", "OK");
+                    await Shell.Current.DisplayAlert("Lỗi", "Không thể hủy lịch hẹn", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await App.Current.MainPage.DisplayAlert("Lỗi", $"Đã xảy ra lỗi: {ex.Message}", "OK");
+                await Shell.Current.DisplayAlert("Lỗi", $"Đã xảy ra lỗi: {ex.Message}", "OK");
             }
             finally
             {
@@ -143,10 +150,12 @@ namespace ProjectMaui.ViewModels
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        // Hàm xử lý chuyển trang chi tiết
+        private async Task OnViewDetail(int appointmentId)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (appointmentId <= 0) return;
+            // Chuyển trang và gửi kèm ID
+            await Shell.Current.GoToAsync($"{nameof(AppointmentDetailPage)}?id={appointmentId}");
         }
     }
 }

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProjectMaui.View.AppointmentDetailPage"
+             Title="Chi tiết phiếu khám"
+             BackgroundColor="#F5F5F5">
+
+    <ScrollView>
+        <Grid RowDefinitions="Auto,*" Padding="15" RowSpacing="15">
+
+            <ActivityIndicator Grid.Row="0" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" Color="#3498DB"/>
+
+            <VerticalStackLayout Grid.Row="1" Spacing="20" IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}">
+
+                <Frame BackgroundColor="White" CornerRadius="10" Padding="15" HasShadow="True">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="TRẠNG THÁI" FontSize="12" TextColor="Gray"/>
+                        <Label Text="{Binding Detail.Status}" 
+                               FontSize="20" 
+                               FontAttributes="Bold"
+                               TextColor="{Binding Detail.StatusColor}"/>
+
+                        <BoxView HeightRequest="1" Color="#E0E0E0"/>
+
+                        <Label Text="THỜI GIAN KHÁM" FontSize="12" TextColor="Gray"/>
+                        <Label Text="{Binding Detail.AppointmentDateDisplay}" 
+                               FontSize="18" 
+                               TextColor="#2C3E50"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Label Text="Bác sĩ phụ trách" FontAttributes="Bold" TextColor="#555"/>
+                <Frame BackgroundColor="White" CornerRadius="10" Padding="15" HasShadow="True">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                        <Frame Grid.Column="0" CornerRadius="30" HeightRequest="60" WidthRequest="60" Padding="0" IsClippedToBounds="True">
+                            <Image Source="doctor_default.png" Aspect="AspectFill"/>
+                        </Frame>
+
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                            <Label Text="{Binding Detail.DoctorName}" FontAttributes="Bold" FontSize="16"/>
+                            <Label Text="{Binding Detail.Specialization}" TextColor="#3498DB"/>
+                            <Label Text="{Binding Detail.DepartmentName}" TextColor="Gray" FontSize="12"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Frame>
+
+                <Label Text="Thông tin bệnh nhân" FontAttributes="Bold" TextColor="#555"/>
+                <Frame BackgroundColor="White" CornerRadius="10" Padding="15" HasShadow="True">
+                    <VerticalStackLayout Spacing="8">
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Họ tên: " TextColor="Gray"/>
+                                    <Span Text="{Binding Detail.PatientName}" FontAttributes="Bold"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="SĐT: " TextColor="Gray"/>
+                                    <Span Text="{Binding Detail.PatientPhone}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Lý do khám: " TextColor="Gray"/>
+                                    <Span Text="{Binding Detail.Reason}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Frame BackgroundColor="#E8F8F5" CornerRadius="10" Padding="15" 
+                       IsVisible="{Binding Detail.Notes, Converter={StaticResource StringNotEmptyConverter}}">
+                    <VerticalStackLayout>
+                        <Label Text="GHI CHÚ TỪ BÁC SĨ" FontAttributes="Bold" TextColor="#27AE60"/>
+                        <Label Text="{Binding Detail.Notes}" TextColor="#2C3E50" Margin="0,5,0,0"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Button Text="Hủy Lịch Hẹn" 
+                        BackgroundColor="#E74C3C" 
+                        TextColor="White"
+                        HeightRequest="50"
+                        CornerRadius="25"
+                        Command="{Binding CancelCommand}"
+                        IsVisible="{Binding Detail.Status, Converter={StaticResource StatusToCancelButtonVisibilityConverter}}"/>
+
+                <Button Text="Quay lại" 
+                        BackgroundColor="Transparent" 
+                        TextColor="#555"
+                        Command="{Binding BackCommand}"/>
+
+            </VerticalStackLayout>
+        </Grid>
+    </ScrollView>
+</ContentPage>

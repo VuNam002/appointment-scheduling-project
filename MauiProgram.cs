@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using ProjectMaui.Data;
 using ProjectMaui.Services;
 using ProjectMaui.View;
 using ProjectMaui.ViewModels;
@@ -24,12 +25,16 @@ namespace ProjectMaui
             builder.Services.AddSingleton<PatientService>();
             builder.Services.AddSingleton<AppointmentService>();
             builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddSingleton<AppointmentRepository>();
+            builder.Services.AddSingleton<AppointmentService>();
 
             // --- 2. ĐĂNG KÝ VIEWMODELS ---
             builder.Services.AddTransient<DoctorListViewModel>();
             builder.Services.AddTransient<AppointmentListViewModel>();
             builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddTransient<LoginPage>();
+            builder.Services.AddTransient<AppointmentDetailViewModel>();
+            builder.Services.AddTransient<AppointmentDetailPage>();
 
             // --- 3. ĐĂNG KÝ PAGES ---
             builder.Services.AddTransient<MainPage>();

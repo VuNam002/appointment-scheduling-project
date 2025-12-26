@@ -54,6 +54,11 @@ namespace ProjectMaui.Services
             return await _appointmentRepository.CreateAppointmentAsync(appointment);
         }
 
+        public async Task<AppointmentDetailModel> GetAppointmentByIdAsync(int appointmentId)
+        {
+            return await _appointmentRepository.GetAppointmentByIdAsync(appointmentId);
+        }
+
         public async Task<bool> UpdateAppointmentStatusAsync(int appointmentId, string status, string notes = null)
         {
             return await _appointmentRepository.UpdateStatusAsync(appointmentId, status, notes);

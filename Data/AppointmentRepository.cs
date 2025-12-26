@@ -158,6 +158,44 @@ namespace ProjectMaui.Data
                 return false;
             }
         }
+        public async Task<AppointmentDetailModel> GetAppointmentByIdAsync(int appointmentId)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();
+                    string query = @"
+                        SELECT 
+                            a.AppointmentId, a.AppointmentDate, a.Status, a.Reason, a.Notes,
+                            d.DoctorId, d.DoctorName, d.Phone AS DoctorPhone, d.Email AS DoctorEmail,
+                            d.Specialization, d.Image AS DoctorImage,
+                            p.PatientId, p.PatientName, p.Phone AS PatientPhone, p.Address AS PatientAddress,
+                            dept.DepartmentName, dept.Location AS DepartmentLocation
+                        FROM Appointments a
+                        INNER JOIN Doctors d ON a.DoctorId = d.DoctorId
+                        INNER JOIN Patients p ON a.PatientId = p.PatientId
+                        LEFT JOIN Departments dept ON d.DepartmentId = dept.DepartmentId
+                        WHERE a.AppointmentId = @AppointmentId";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@AppointmentId", appointmentId);
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                return MapToDetailModel(reader);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error GetAppointmentByIdAsync: {ex.Message}");
+            }
+            return null;
+        }
 
         public async Task<bool> CheckDoctorAvailabilityAsync(int doctorId, DateTime appointmentDate)
         {
