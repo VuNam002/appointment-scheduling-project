@@ -68,5 +68,11 @@ namespace ProjectMaui.Services
         {
             return await _appointmentRepository.UpdateStatusAsync(appointmentId, "Đã hủy", reason);
         }
+        public async Task<List<AppointmentDetailModel>> GetMyScheduleAsync()
+        {
+            string currentRole = UserSession.Current.Role;
+            int currentDoctorId = UserSession.Current.DoctorId;
+            return await _appointmentRepository.GetAppointmentsByRoleAsync(currentRole, currentDoctorId);
+        }
     }
 }

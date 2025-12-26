@@ -280,6 +280,51 @@ namespace ProjectMaui.Data
             }
             return appointments;
         }
+        public async Task<List<AppointmentDetailModel>> GetAppointmentsByRoleAsync(string role, int doctorId)
+        {
+            var appointments = new List<AppointmentDetailModel>();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();
+                    string query = @"
+                SELECT 
+                    a.AppointmentId, a.AppointmentDate, a.Status, a.Reason, a.Notes,
+                    d.DoctorId, d.DoctorName, d.Phone AS DoctorPhone, d.Email AS DoctorEmail,
+                    d.Specialization, d.Image AS DoctorImage,
+                    p.PatientId, p.PatientName, p.Phone AS PatientPhone, p.Address AS PatientAddress,
+                    dept.DepartmentName, dept.Location AS DepartmentLocation
+                FROM Appointments a
+                INNER JOIN Doctors d ON a.DoctorId = d.DoctorId
+                INNER JOIN Patients p ON a.PatientId = p.PatientId
+                LEFT JOIN Departments dept ON d.DepartmentId = dept.DepartmentId
+                WHERE (@Role = 'Admin') OR (a.DoctorId = @DoctorId)
+                ORDER BY a.AppointmentDate DESC";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        // Xử lý null cho chắc chắn
+                        command.Parameters.AddWithValue("@Role", role ?? "");
+                        command.Parameters.AddWithValue("@DoctorId", doctorId);
+
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                // Tận dụng lại hàm MapToDetailModel bạn đã viết
+                                appointments.Add(MapToDetailModel(reader));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error GetAppointmentsByRoleAsync: {ex.Message}");
+            }
+            return appointments;
+        }
 
         private AppointmentDetailModel MapToDetailModel(SqlDataReader reader)
         {

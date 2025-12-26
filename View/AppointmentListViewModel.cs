@@ -6,16 +6,13 @@ using System.Windows.Input;
 
 namespace ProjectMaui.ViewModels
 {
-    // Kế thừa BaseViewModel cho gọn (đỡ phải viết lại INotifyPropertyChanged)
     public class AppointmentListViewModel : BaseViewModel
     {
         private readonly AppointmentService _appointmentService;
-
-        // List gốc để lưu trữ
         private List<AppointmentDetailModel> _allAppointments;
-
         public ObservableCollection<AppointmentDetailModel> FilteredAppointments { get; set; }
 
+        // Bộ lọc trạng thái
         private string _selectedFilter = "Tất cả";
         public string SelectedFilter
         {
@@ -24,33 +21,32 @@ namespace ProjectMaui.ViewModels
             {
                 if (SetProperty(ref _selectedFilter, value))
                 {
-                    FilterAppointments(); // Lọc lại ngay khi đổi picker
+                    FilterAppointments(); 
                 }
             }
         }
 
         public ICommand RefreshCommand { get; }
         public ICommand CancelAppointmentCommand { get; }
-        public ICommand ViewDetailCommand { get; } // Lệnh xem chi tiết
+        public ICommand ViewDetailCommand { get; }
 
-        public AppointmentListViewModel(AppointmentService appointmentService)
+        public AppointmentListViewModel()
         {
-            _appointmentService = appointmentService;
+            _appointmentService = new AppointmentService();
+
+            // Khởi tạo 2 danh sách để tránh lỗi Null
             _allAppointments = new List<AppointmentDetailModel>();
             FilteredAppointments = new ObservableCollection<AppointmentDetailModel>();
 
             RefreshCommand = new Command(async () => await LoadAppointmentsAsync());
-
-            // Logic hủy lịch
             CancelAppointmentCommand = new Command<int>(async (id) => await CancelAppointmentAsync(id));
-
-            // Logic xem chi tiết
             ViewDetailCommand = new Command<int>(async (id) => await OnViewDetail(id));
 
-            // Tải dữ liệu ngay lập tức
+            // Tải dữ liệu ngay khi mở màn hình
             LoadAppointmentsAsync();
         }
 
+        // --- HÀM TẢI DỮ LIỆU ---
         private async Task LoadAppointmentsAsync()
         {
             if (IsLoading) return;
@@ -58,26 +54,18 @@ namespace ProjectMaui.ViewModels
 
             try
             {
-                // Bước 1: Thử lấy theo ID bệnh nhân đang đăng nhập
-                int patientId = UserSession.Current.PatientId;
-                var appointments = await _appointmentService.GetAppointmentsByPatientAsync(patientId);
+                // Gọi hàm thông minh: Admin lấy hết, Bác sĩ chỉ lấy lịch của mình
+                var listData = await _appointmentService.GetMyScheduleAsync();
 
-                // --- SỬA LẠI: LOGIC DỰ PHÒNG (FALLBACK) ---
-                // Nếu không tìm thấy lịch nào (hoặc chưa đăng nhập), thì lấy TẤT CẢ để hiển thị cho bạn test
-                if (appointments == null || appointments.Count == 0)
-                {
-                    System.Diagnostics.Debug.WriteLine("Không thấy lịch riêng, đang tải TOÀN BỘ dữ liệu...");
-                    appointments = await _appointmentService.GetAppointmentsAsync();
-                }
+                // Lưu vào danh sách gốc
+                _allAppointments = listData ?? new List<AppointmentDetailModel>();
 
-                _allAppointments = appointments; // Lưu vào list gốc
-
-                // Hiển thị ra màn hình
+                // Gọi hàm lọc để đẩy dữ liệu ra màn hình
                 FilterAppointments();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading appointments: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error loading: {ex.Message}");
                 await Shell.Current.DisplayAlert("Lỗi", "Không tải được dữ liệu", "OK");
             }
             finally
@@ -90,40 +78,28 @@ namespace ProjectMaui.ViewModels
         {
             if (_allAppointments == null) return;
 
+            // Xóa danh sách hiển thị cũ
             FilteredAppointments.Clear();
 
             IEnumerable<AppointmentDetailModel> query = _allAppointments;
 
-            // Logic lọc theo trạng thái
             if (SelectedFilter != "Tất cả")
             {
                 query = query.Where(a => a.Status == SelectedFilter);
             }
-
             foreach (var item in query)
             {
                 FilteredAppointments.Add(item);
             }
         }
 
+        // --- HÀM HỦY LỊCH ---
         private async Task CancelAppointmentAsync(int appointmentId)
         {
-            bool confirm = await Shell.Current.DisplayAlert(
-                "Xác nhận",
-                "Bạn có chắc muốn hủy lịch hẹn này?",
-                "Có",
-                "Không"
-            );
-
+            bool confirm = await Shell.Current.DisplayAlert("Xác nhận", "Bạn có chắc muốn hủy lịch này?", "Có", "Không");
             if (!confirm) return;
 
-            string reason = await Shell.Current.DisplayPromptAsync(
-                "Lý do hủy",
-                "Vui lòng nhập lý do hủy lịch:",
-                "OK",
-                "Hủy"
-            );
-
+            string reason = await Shell.Current.DisplayPromptAsync("Lý do", "Nhập lý do hủy:", "OK", "Hủy");
             if (string.IsNullOrWhiteSpace(reason)) return;
 
             IsLoading = true;
@@ -133,16 +109,28 @@ namespace ProjectMaui.ViewModels
                 if (success)
                 {
                     await Shell.Current.DisplayAlert("Thành công", "Đã hủy lịch hẹn", "OK");
-                    await LoadAppointmentsAsync(); // Tải lại danh sách
+                    
+                    // Cập nhật trạng thái ngay trên UI thay vì tải lại toàn bộ
+                    var appointmentToUpdate = _allAppointments.FirstOrDefault(a => a.AppointmentId == appointmentId);
+                    if (appointmentToUpdate != null)
+                    {
+                        appointmentToUpdate.Status = "Đã hủy";
+                        appointmentToUpdate.Reason = reason;
+                        FilterAppointments(); // Áp dụng lại bộ lọc để cập nhật UI
+                    }
+                    else
+                    {
+                        await LoadAppointmentsAsync(); // Tải lại nếu không tìm thấy
+                    }
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Lỗi", "Không thể hủy lịch hẹn", "OK");
+                    await Shell.Current.DisplayAlert("Lỗi", "Không thể hủy lịch", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Lỗi", $"Đã xảy ra lỗi: {ex.Message}", "OK");
+                await Shell.Current.DisplayAlert("Lỗi", ex.Message, "OK");
             }
             finally
             {
@@ -150,11 +138,11 @@ namespace ProjectMaui.ViewModels
             }
         }
 
-        // Hàm xử lý chuyển trang chi tiết
+        // --- HÀM XEM CHI TIẾT ---
         private async Task OnViewDetail(int appointmentId)
         {
             if (appointmentId <= 0) return;
-            // Chuyển trang và gửi kèm ID
+            // Chuyển sang trang chi tiết
             await Shell.Current.GoToAsync($"{nameof(AppointmentDetailPage)}?id={appointmentId}");
         }
     }

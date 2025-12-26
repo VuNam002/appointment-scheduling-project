@@ -14,7 +14,6 @@ public partial class AppointmentListPage : ContentPage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"CRASH TẠI APPOINTMENT LIST: {ex.Message}");
-            // Nếu chạy trên Windows, dòng này sẽ hiện popup lỗi
             App.Current.MainPage?.DisplayAlert("Lỗi Giao Diện", ex.Message, "OK");
         }
     }

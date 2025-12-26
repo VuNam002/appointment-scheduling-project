@@ -1,5 +1,6 @@
 ﻿using ProjectMaui.Models;
 using ProjectMaui.Services;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace ProjectMaui.ViewModels
@@ -16,12 +17,13 @@ namespace ProjectMaui.ViewModels
             set
             {
                 _appointmentId = value;
-                // Khi nhận được ID, tự động tải dữ liệu ngay
                 LoadAppointmentDetail();
             }
         }
 
         private AppointmentDetailModel _detail;
+        private List<AppointmentDetailModel> _allAppointments;
+
         public AppointmentDetailModel Detail
         {
             get => _detail;
@@ -44,7 +46,6 @@ namespace ProjectMaui.ViewModels
             IsLoading = true;
             try
             {
-                // Gọi qua Service (Logic của bạn đã viết sẵn)
                 var data = await _appointmentService.GetAppointmentByIdAsync(AppointmentId);
                 Detail = data;
             }
@@ -82,5 +83,31 @@ namespace ProjectMaui.ViewModels
                 IsLoading = false;
             }
         }
+        //private async Task LoadAppointmentsAsync()
+        //{
+        //    if (IsLoading) return;
+        //    IsLoading = true;
+
+        //    try
+        //    {
+        //        var listData = await _appointmentService.GetMyScheduleAsync();
+        //        _allAppointments = listData ?? new List<AppointmentDetailModel>();
+        //        FilterAppointments();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        System.Diagnostics.Debug.WriteLine($"Error loading appointments: {ex.Message}");
+        //        await Shell.Current.DisplayAlert("Lỗi", "Không tải được dữ liệu", "OK");
+        //    }
+        //    finally
+        //    {
+        //        IsLoading = false;
+        //    }
+        //}
+
+        //private void FilterAppointments()
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }
