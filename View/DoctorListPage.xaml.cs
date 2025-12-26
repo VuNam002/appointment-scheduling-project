@@ -5,9 +5,10 @@ namespace ProjectMaui.View;
 
 public partial class DoctorListPage : ContentPage
 {
-    public DoctorListPage()
+    public DoctorListPage(DoctorListViewModel viewModel)
     {
         InitializeComponent();
+        BindingContext = viewModel;
     }
 
     private async void OnDoctorTapped(object sender, EventArgs e)

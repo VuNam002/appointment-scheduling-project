@@ -1,7 +1,4 @@
-﻿// Models/DoctorInfoModel.cs
-using System;
-
-namespace ProjectMaui.Models
+﻿namespace ProjectMaui.Models
 {
     public class DoctorInfoModel
     {
@@ -15,7 +12,7 @@ namespace ProjectMaui.Models
 
         public DepartmentModel Department { get; set; }
 
-        public string DepartmentName => Department?.DepartmentName ?? "";
-        public string DisplayInfo => $"{DoctorName} - {Specialization}";
+        // Thuộc tính tiện ích để binding trực tiếp
+        public string DepartmentName => Department?.DepartmentName;
     }
 }

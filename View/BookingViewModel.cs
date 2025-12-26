@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -6,12 +6,16 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ProjectMaui.Models;
 using ProjectMaui.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Maui;
 
 namespace ProjectMaui.ViewModels
 {
     public class BookingViewModel : INotifyPropertyChanged
     {
-        private readonly DatabaseService _databaseService;
+        private readonly DoctorService _doctorService;
+        private readonly PatientService _patientService;
+        private readonly AppointmentService _appointmentService;
         private readonly DoctorInfoModel _selectedDoctor;
 
         public DoctorInfoModel SelectedDoctor => _selectedDoctor;
@@ -112,7 +116,13 @@ namespace ProjectMaui.ViewModels
         public BookingViewModel(DoctorInfoModel doctor)
         {
             _selectedDoctor = doctor;
-            _databaseService = new DatabaseService();
+            
+            // Lấy các service thông qua Service Locator vì ViewModel này được new thủ công
+            var services = IPlatformApplication.Current.Services;
+            _doctorService = services.GetService<DoctorService>();
+            _patientService = services.GetService<PatientService>();
+            _appointmentService = services.GetService<AppointmentService>();
+
             DoctorSchedules = new ObservableCollection<DoctorScheduleModel>();
 
             BookAppointmentCommand = new Command(async () => await BookAppointmentAsync());
@@ -126,7 +136,7 @@ namespace ProjectMaui.ViewModels
             IsLoading = true;
             try
             {
-                var schedules = await _databaseService.GetDoctorScheduleAsync(_selectedDoctor.DoctorId);
+                var schedules = await _doctorService.GetDoctorScheduleAsync(_selectedDoctor.DoctorId);
                 DoctorSchedules.Clear();
                 foreach (var schedule in schedules)
                 {
@@ -189,7 +199,7 @@ namespace ProjectMaui.ViewModels
             try
             {
                 // Check or create patient
-                var patient = await _databaseService.GetPatientByPhoneAsync(PatientPhone);
+                var patient = await _patientService.GetPatientByPhoneAsync(PatientPhone);
                 if (patient == null)
                 {
                     var newPatient = new PatientModel
@@ -198,7 +208,7 @@ namespace ProjectMaui.ViewModels
                         Phone = PatientPhone,
                         Address = PatientAddress
                     };
-                    var patientId = await _databaseService.AddPatientAsync(newPatient);
+                    var patientId = await _patientService.AddPatientAsync(newPatient);
                     if (patientId <= 0)
                     {
                         await App.Current.MainPage.DisplayAlert("Lỗi", "Không thể tạo thông tin bệnh nhân", "OK");
@@ -219,7 +229,7 @@ namespace ProjectMaui.ViewModels
                     Status = "Chờ xác nhận"
                 };
 
-                var appointmentId = await _databaseService.CreateAppointmentAsync(appointment);
+                var appointmentId = await _appointmentService.CreateAppointmentAsync(appointment);
                 if (appointmentId > 0)
                 {
                     await App.Current.MainPage.DisplayAlert(

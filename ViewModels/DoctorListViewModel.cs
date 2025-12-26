@@ -11,7 +11,9 @@ namespace ProjectMaui.ViewModels
 {
     public class DoctorListViewModel : INotifyPropertyChanged
     {
-        private readonly DatabaseService _databaseService;
+
+        private readonly DoctorService _doctorService;
+        private readonly DepartmentService _departmentService;
 
         public ObservableCollection<DoctorInfoModel> Doctors { get; set; }
         public ObservableCollection<DepartmentModel> Departments { get; set; }
@@ -46,9 +48,10 @@ namespace ProjectMaui.ViewModels
         public ICommand LoadDepartmentsCommand { get; }
         public ICommand RefreshCommand { get; }
 
-        public DoctorListViewModel()
+        public DoctorListViewModel(DoctorService doctorService, DepartmentService departmentService)
         {
-            _databaseService = new DatabaseService();
+            _doctorService = doctorService;
+            _departmentService = departmentService;
             Doctors = new ObservableCollection<DoctorInfoModel>();
             Departments = new ObservableCollection<DepartmentModel>();
 
@@ -71,7 +74,7 @@ namespace ProjectMaui.ViewModels
             IsLoading = true;
             try
             {
-                var doctors = await _databaseService.GetDoctorsAsync();
+                var doctors = await _doctorService.GetDoctorsAsync();
                 Doctors.Clear();
                 foreach (var doctor in doctors)
                 {
@@ -92,7 +95,7 @@ namespace ProjectMaui.ViewModels
         {
             try
             {
-                var departments = await _databaseService.GetDepartmentsAsync();
+                var departments = await _departmentService.GetDepartmentsAsync();
                 Departments.Clear();
                 Departments.Add(new DepartmentModel { DepartmentId = 0, DepartmentName = "Tất cả" });
                 foreach (var dept in departments)
@@ -112,8 +115,8 @@ namespace ProjectMaui.ViewModels
             try
             {
                 var doctors = departmentId == 0
-                    ? await _databaseService.GetDoctorsAsync()
-                    : await _databaseService.GetDoctorsByDepartmentAsync(departmentId);
+                    ? await _doctorService.GetDoctorsAsync()
+                    : await _doctorService.GetDoctorsByDepartmentAsync(departmentId);
 
                 Doctors.Clear();
                 foreach (var doctor in doctors)

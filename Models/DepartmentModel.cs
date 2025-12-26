@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ProjectMaui.Models
+﻿namespace ProjectMaui.Models
 {
     public class DepartmentModel
     {

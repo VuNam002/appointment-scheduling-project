@@ -51,7 +51,7 @@
                    Padding="15"
                    HasShadow="False">
                 <VerticalStackLayout Spacing="5">
-                    <Label Text="📅 Lịch làm việc" 
+                    <Label Text=" Lịch làm việc" 
                            FontSize="16"
                            FontAttributes="Bold"
                            TextColor="#16A085"/>

@@ -5,10 +5,6 @@
              x:Class="ProjectMaui.View.AppointmentListPage"
              Title="Lịch hẹn của tôi">
 
-    <ContentPage.BindingContext>
-        <viewmodels:AppointmentListViewModel />
-    </ContentPage.BindingContext>
-
     <Grid RowDefinitions="Auto,*" Padding="10">
 
         <Frame Grid.Row="0" 

@@ -6,33 +6,28 @@ namespace ProjectMaui.Models
     {
         public int ScheduleId { get; set; }
         public int DoctorId { get; set; }
-        public int DayOfWeek { get; set; } 
+        public int DayOfWeek { get; set; } // 2=Thứ 2, ..., 8=Chủ Nhật (Tùy quy ước DB)
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
 
-        // Navigation property
-        public DoctorInfoModel Doctor { get; set; }
-
-        // Computed properties
         public string DayOfWeekName
         {
             get
             {
                 return DayOfWeek switch
                 {
-                    2 => "Thứ Hai",
-                    3 => "Thứ Ba",
-                    4 => "Thứ Tư",
-                    5 => "Thứ Năm",
-                    6 => "Thứ Sáu",
-                    7 => "Thứ Bảy",
+                    2 => "Thứ 2",
+                    3 => "Thứ 3",
+                    4 => "Thứ 4",
+                    5 => "Thứ 5",
+                    6 => "Thứ 6",
+                    7 => "Thứ 7",
                     8 => "Chủ Nhật",
-                    _ => ""
+                    _ => "Chủ Nhật" // Mặc định hoặc xử lý theo quy ước 0/1 của C#
                 };
             }
         }
 
         public string TimeDisplay => $"{StartTime:hh\\:mm} - {EndTime:hh\\:mm}";
-        public string ScheduleDisplay => $"{DayOfWeekName}: {TimeDisplay}";
     }
 }

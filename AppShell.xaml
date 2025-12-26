@@ -9,13 +9,11 @@
     <TabBar>
         <ShellContent
             Title="Bác sĩ"
-            Icon="doctor_icon.png"
             ContentTemplate="{DataTemplate local:DoctorListPage}" 
             Route="doctorlist"/>
 
         <ShellContent
             Title="Lịch hẹn"
-            Icon="appointment_icon.png"
             ContentTemplate="{DataTemplate local:AppointmentListPage}" 
             Route="appointmentlist"/>
     </TabBar>

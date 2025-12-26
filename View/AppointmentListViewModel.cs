@@ -12,7 +12,7 @@ namespace ProjectMaui.ViewModels
 {
     public class AppointmentListViewModel : INotifyPropertyChanged
     {
-        private readonly DatabaseService _databaseService;
+        private readonly AppointmentService _appointmentService;
 
         public ObservableCollection<AppointmentDetailModel> Appointments { get; set; }
         public ObservableCollection<AppointmentDetailModel> FilteredAppointments { get; set; }
@@ -44,9 +44,9 @@ namespace ProjectMaui.ViewModels
         public ICommand RefreshCommand { get; }
         public ICommand CancelAppointmentCommand { get; }
 
-        public AppointmentListViewModel()
+        public AppointmentListViewModel(AppointmentService appointmentService)
         {
-            _databaseService = new DatabaseService();
+            _appointmentService = appointmentService;
             Appointments = new ObservableCollection<AppointmentDetailModel>();
             FilteredAppointments = new ObservableCollection<AppointmentDetailModel>();
 
@@ -62,7 +62,7 @@ namespace ProjectMaui.ViewModels
             IsLoading = true;
             try
             {
-                var appointments = await _databaseService.GetAppointmentsAsync();
+                var appointments = await _appointmentService.GetAppointmentsAsync();
                 Appointments.Clear();
                 foreach (var appointment in appointments)
                 {
@@ -122,7 +122,7 @@ namespace ProjectMaui.ViewModels
             IsLoading = true;
             try
             {
-                bool success = await _databaseService.CancelAppointmentAsync(appointmentId, reason);
+                bool success = await _appointmentService.CancelAppointmentAsync(appointmentId, reason);
                 if (success)
                 {
                     await App.Current.MainPage.DisplayAlert("Thành công", "Đã hủy lịch hẹn", "OK");

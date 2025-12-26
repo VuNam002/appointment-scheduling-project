@@ -5,10 +5,6 @@
              x:Class="ProjectMaui.View.DoctorListPage"
              Title="Danh sách Bác sĩ">
 
-    <ContentPage.BindingContext>
-        <viewmodels:DoctorListViewModel />
-    </ContentPage.BindingContext>
-
     <Grid RowDefinitions="Auto,*" Padding="10">
 
         <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,0,0,15">
