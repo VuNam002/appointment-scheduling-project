@@ -3,6 +3,7 @@ using ProjectMaui.Services;
 using ProjectMaui.View;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using ProjectMaui.ViewModels;
 
 namespace ProjectMaui.ViewModels
 {
@@ -44,8 +45,23 @@ namespace ProjectMaui.ViewModels
             ViewDetailCommand = new Command<int>(async (id) => await OnViewDetail(id));
             UpdateStatusCommand = new Command<AppointmentDetailModel>(async (model) => await UpdateAppointmentStatusAsync(model));
 
+            // Subscribe to event to refresh list
+            AppEventService.AppointmentsChanged += HandleAppointmentsChanged;
         }
 
+        private void HandleAppointmentsChanged(object? sender, EventArgs e)
+        {
+            if (RefreshCommand.CanExecute(null))
+            {
+                RefreshCommand.Execute(null);
+            }
+        }
+
+        // Finalizer to unsubscribe and prevent memory leaks
+        ~AppointmentListViewModel()
+        {
+            AppEventService.AppointmentsChanged -= HandleAppointmentsChanged;
+        }
         // --- HÀM TẢI DỮ LIỆU ---
         private async Task LoadAppointmentsAsync()
         {

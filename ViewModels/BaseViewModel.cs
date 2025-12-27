@@ -9,8 +9,16 @@ namespace ProjectMaui.ViewModels
         public bool IsLoading
         {
             get => _isLoading;
-            set => SetProperty(ref _isLoading, value);
+            set
+            {
+                if (SetProperty(ref _isLoading, value))
+                {
+                    OnPropertyChanged(nameof(IsNotLoading));
+                }
+            }
         }
+
+        public bool IsNotLoading => !IsLoading;
 
         private string _title;
         public string Title

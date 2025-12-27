@@ -165,7 +165,6 @@ namespace ProjectMaui.Services
                 DoctorId = Convert.ToInt32(reader["DoctorId"]),
                 DoctorName = reader["DoctorName"]?.ToString() ?? "",
                 Phone = reader["Phone"]?.ToString() ?? "",
-                Email = reader["Email"]?.ToString() ?? "",
                 DepartmentId = reader["DepartmentId"] == DBNull.Value ? null : Convert.ToInt32(reader["DepartmentId"]),
                 Specialization = reader["Specialization"]?.ToString() ?? "",
                 Image = reader["Image"]?.ToString() ?? "",

@@ -287,6 +287,9 @@ namespace ProjectMaui.ViewModels
                         "OK"
                     );
 
+                    // Send event to update appointment list
+                    AppEventService.InvokeAppointmentsChanged();
+
                     // Clear form only if an admin/doctor booked it
                     if (AllowPatientInfoEdit)
                     {

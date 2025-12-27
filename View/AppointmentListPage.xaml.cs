@@ -21,8 +21,10 @@ namespace ProjectMaui.View;
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        if (BindingContext is AppointmentListViewModel viewModel && viewModel.FilteredAppointments.Count == 0)
+        if (BindingContext is AppointmentListViewModel viewModel)
         {
+            // Always refresh data when the page appears to ensure it's up-to-date
+            // for the current user.
             viewModel.RefreshCommand.Execute(null);
         }
     }

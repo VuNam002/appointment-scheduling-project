@@ -26,7 +26,7 @@ namespace ProjectMaui.Data
                     string query = @"
                         SELECT 
                             a.AppointmentId, a.AppointmentDate, a.Status, a.Reason, a.Notes,
-                            d.DoctorId, d.DoctorName, d.Phone AS DoctorPhone, d.Email AS DoctorEmail,
+                            d.DoctorId, d.DoctorName, d.Phone AS DoctorPhone, AS DoctorEmail,
                             d.Specialization, d.Image AS DoctorImage,
                             p.PatientId, p.PatientName, p.Phone AS PatientPhone, p.Address AS PatientAddress,
                             dept.DepartmentName, dept.Location AS DepartmentLocation
@@ -64,7 +64,7 @@ namespace ProjectMaui.Data
                     string query = @"
                         SELECT 
                             a.AppointmentId, a.AppointmentDate, a.Status, a.Reason, a.Notes,
-                            d.DoctorId, d.DoctorName, d.Phone AS DoctorPhone, d.Email AS DoctorEmail,
+                            d.DoctorId, d.DoctorName, d.Phone AS DoctorPhone, AS DoctorEmail,
                             d.Specialization, d.Image AS DoctorImage,
                             p.PatientId, p.PatientName, p.Phone AS PatientPhone, p.Address AS PatientAddress,
                             dept.DepartmentName, dept.Location AS DepartmentLocation
@@ -168,7 +168,7 @@ namespace ProjectMaui.Data
                     string query = @"
                         SELECT 
                             a.AppointmentId, a.AppointmentDate, a.Status, a.Reason, a.Notes,
-                            d.DoctorId, d.DoctorName, d.Phone AS DoctorPhone, d.Email AS DoctorEmail,
+                            d.DoctorId, d.DoctorName, d.Phone AS DoctorPhone, AS DoctorEmail,
                             d.Specialization, d.Image AS DoctorImage,
                             p.PatientId, p.PatientName, p.Phone AS PatientPhone, p.Address AS PatientAddress,
                             dept.DepartmentName, dept.Location AS DepartmentLocation
@@ -291,7 +291,7 @@ namespace ProjectMaui.Data
                     string query = @"
                 SELECT 
                     a.AppointmentId, a.AppointmentDate, a.Status, a.Reason, a.Notes,
-                    d.DoctorId, d.DoctorName, d.Phone AS DoctorPhone, d.Email AS DoctorEmail,
+                    d.DoctorId, d.DoctorName, d.Phone AS DoctorPhone AS DoctorEmail,
                     d.Specialization, d.Image AS DoctorImage,
                     p.PatientId, p.PatientName, p.Phone AS PatientPhone, p.Address AS PatientAddress,
                     dept.DepartmentName, dept.Location AS DepartmentLocation
@@ -342,7 +342,6 @@ namespace ProjectMaui.Data
                 DoctorId = Convert.ToInt32(reader["DoctorId"]),
                 DoctorName = reader["DoctorName"]?.ToString() ?? "",
                 DoctorPhone = reader["DoctorPhone"]?.ToString() ?? "",
-                DoctorEmail = reader["DoctorEmail"]?.ToString() ?? "",
                 Specialization = reader["Specialization"]?.ToString() ?? "",
                 DoctorImage = reader["DoctorImage"]?.ToString() ?? "",
                 PatientId = Convert.ToInt32(reader["PatientId"]),

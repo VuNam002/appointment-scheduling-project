@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProjectMaui.View.AddDoctorPage"
+             Title="Thêm Bác sĩ">
+    <ScrollView>
+        <VerticalStackLayout Spacing="10" Padding="20">
+
+            <Label Text="Họ và tên bác sĩ" />
+            <Entry Text="{Binding DoctorName}" Placeholder="Nhập họ và tên bác sĩ" />
+
+            <Label Text="Số điện thoại / Tên đăng nhập" />
+            <Entry Text="{Binding Phone}" Placeholder="Nhập số điện thoại" Keyboard="Telephone" />
+
+            <Label Text="Mật khẩu" />
+            <Entry Text="{Binding Password}" IsPassword="True" Placeholder="Nhập mật khẩu" />
+
+            <Label Text="Chuyên môn" />
+            <Entry Text="{Binding Specialization}" Placeholder="VD: Tim mạch, Da liễu,..." />
+            
+            <Label Text="Khoa" />
+            <Picker Title="Chọn khoa" 
+                    ItemsSource="{Binding Departments}"
+                    ItemDisplayBinding="{Binding DepartmentName}"
+                    SelectedItem="{Binding SelectedDepartment}" />
+
+            <Button Text="Thêm Bác sĩ" Command="{Binding AddDoctorCommand}" IsEnabled="{Binding IsNotLoading}" HorizontalOptions="FillAndExpand" Margin="0,20,0,0" />
+            <ActivityIndicator IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -9,13 +9,14 @@ namespace ProjectMaui
         {
             InitializeComponent();
             Routing.RegisterRoute(nameof(AppointmentDetailPage), typeof(AppointmentDetailPage));
+            Routing.RegisterRoute(nameof(AddDoctorPage), typeof(AddDoctorPage));
             
         }
         public void SetupTabsForRole()
         {
             var role = UserSession.Current.Role;
-            // Assuming "Admin" and "Patient" are the roles that can see the doctor list.
-            if (role == "Patient" || role == "Admin")
+            // The doctor list should be visible to all logged-in roles.
+            if (role == "Patient" || role == "Admin" || role == "Doctor")
             {
                 DoctorListTab.IsEnabled = true;
                 DoctorListTab.IsVisible = true;

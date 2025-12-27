@@ -20,6 +20,9 @@ public partial class MainPage : ContentPage
             lblWelcome.Text = UserSession.Current.FullName;
             lblPhone.Text = UserSession.Current.PhoneNumber;
 
+            // Show "Add Doctor" button only for Admins
+            btnAddDoctor.IsVisible = UserSession.Current.Role == "Admin";
+
             //// Cập nhật ảnh đại diện
             //if (!string.IsNullOrEmpty(UserSession.Current.Image))
             //{
@@ -34,8 +37,14 @@ public partial class MainPage : ContentPage
         {
             lblWelcome.Text = "Khách vãng lai";
             lblPhone.Text = "Vui lòng đăng nhập";
+            btnAddDoctor.IsVisible = false;
             //imgAvatar.Source = "dotnet_bot.png"; // Reset về ảnh mặc định
         }
+    }
+
+    private async void OnAddDoctorClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(AddDoctorPage));
     }
 
     private async void OnLogoutClicked(object sender, EventArgs e)

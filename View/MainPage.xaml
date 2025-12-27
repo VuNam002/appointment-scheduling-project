@@ -32,6 +32,16 @@
                 </VerticalStackLayout>
             </Frame>
 
+            <Button x:Name="btnAddDoctor"
+                    Text="Thêm Bác sĩ"
+                    BackgroundColor="#3498DB"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="10"
+                    HeightRequest="50"
+                    Clicked="OnAddDoctorClicked"
+                    IsVisible="False"/>
+
             <Button Text="Đăng xuất"
                     BackgroundColor="#E74C3C"
                     TextColor="White"
