@@ -47,6 +47,10 @@ namespace ProjectMaui.ViewModels
 
                 if (isSuccess)
                 {
+                    if (App.Current.MainPage is AppShell appShell)
+                    {
+                        appShell.SetupTabsForRole();
+                    }
                     await App.Current.MainPage.DisplayAlert("Thành công", $"Xin chào {UserSession.Current.FullName}!", "OK");
                     await Shell.Current.GoToAsync("//MainPage");
                 }

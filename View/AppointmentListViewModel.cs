@@ -44,8 +44,6 @@ namespace ProjectMaui.ViewModels
             ViewDetailCommand = new Command<int>(async (id) => await OnViewDetail(id));
             UpdateStatusCommand = new Command<AppointmentDetailModel>(async (model) => await UpdateAppointmentStatusAsync(model));
 
-            // Tải dữ liệu ngay khi mở màn hình
-            LoadAppointmentsAsync();
         }
 
         // --- HÀM TẢI DỮ LIỆU ---

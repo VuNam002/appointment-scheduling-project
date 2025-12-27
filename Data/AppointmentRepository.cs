@@ -280,7 +280,7 @@ namespace ProjectMaui.Data
             }
             return appointments;
         }
-        public async Task<List<AppointmentDetailModel>> GetAppointmentsByRoleAsync(string role, int doctorId)
+        public async Task<List<AppointmentDetailModel>> GetAppointmentsByRoleAsync(string role, int doctorId, int patientId)
         {
             var appointments = new List<AppointmentDetailModel>();
             try
@@ -299,7 +299,10 @@ namespace ProjectMaui.Data
                 INNER JOIN Doctors d ON a.DoctorId = d.DoctorId
                 INNER JOIN Patients p ON a.PatientId = p.PatientId
                 LEFT JOIN Departments dept ON d.DepartmentId = dept.DepartmentId
-                WHERE (@Role = 'Admin') OR (a.DoctorId = @DoctorId)
+                WHERE 
+                    (@Role = 'Admin') OR 
+                    (@Role = 'Doctor' AND a.DoctorId = @DoctorId) OR
+                    (@Role = 'Patient' AND a.PatientId = @PatientId)
                 ORDER BY a.AppointmentDate DESC";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -307,6 +310,7 @@ namespace ProjectMaui.Data
                         // Xử lý null cho chắc chắn
                         command.Parameters.AddWithValue("@Role", role ?? "");
                         command.Parameters.AddWithValue("@DoctorId", doctorId);
+                        command.Parameters.AddWithValue("@PatientId", patientId);
 
                         using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {

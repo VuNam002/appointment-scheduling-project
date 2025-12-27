@@ -16,6 +16,7 @@
     <TabBar Route="MainPage">
 
         <ShellContent
+            x:Name="DoctorListTab"
             Title="Bác sĩ"
             ContentTemplate="{DataTemplate local:DoctorListPage}" 
             Route="doctorlist"/>

@@ -72,7 +72,8 @@ namespace ProjectMaui.Services
         {
             string currentRole = UserSession.Current.Role;
             int currentDoctorId = UserSession.Current.DoctorId;
-            return await _appointmentRepository.GetAppointmentsByRoleAsync(currentRole, currentDoctorId);
+            int currentPatientId = UserSession.Current.PatientId;
+            return await _appointmentRepository.GetAppointmentsByRoleAsync(currentRole, currentDoctorId, currentPatientId);
         }
     }
 }

@@ -12,7 +12,7 @@
 
             <Frame CornerRadius="20" HasShadow="True" BackgroundColor="White" Padding="20">
                 <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                    <Image Source="user_icon.png" HeightRequest="100" WidthRequest="100" Aspect="AspectFit"/>
+                    <Image x:Name="imgAvatar" Source="user_icon.png" HeightRequest="100" WidthRequest="100" Aspect="AspectFit"/>
 
                     <Label Text="XIN CHÀO!" FontSize="16" TextColor="Gray" HorizontalOptions="Center"/>
 
@@ -21,6 +21,12 @@
                            FontSize="22" 
                            FontAttributes="Bold"
                            TextColor="#2C3E50"
+                           HorizontalOptions="Center"/>
+                    
+                    <Label x:Name="lblPhone"
+                           Text="..."
+                           FontSize="16" 
+                           TextColor="Gray"
                            HorizontalOptions="Center"/>
 
                 </VerticalStackLayout>

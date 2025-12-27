@@ -18,6 +18,7 @@ namespace ProjectMaui.Services
         public string PhoneNumber { get; set; }
         public string FullName { get; set; }
         public string Role { get; set; }
+        public string Image { get; set; }
 
         public bool IsLoggedIn => AccountId > 0;
 
@@ -29,6 +30,7 @@ namespace ProjectMaui.Services
             PhoneNumber = null;
             FullName = null;
             Role = null;
+            Image = null;
         }
     }
 }

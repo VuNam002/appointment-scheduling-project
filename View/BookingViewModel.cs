@@ -21,6 +21,27 @@ namespace ProjectMaui.ViewModels
         public DoctorInfoModel SelectedDoctor => _selectedDoctor;
         public ObservableCollection<DoctorScheduleModel> DoctorSchedules { get; set; }
 
+        private bool _allowPatientInfoEdit = true;
+        public bool AllowPatientInfoEdit
+        {
+            get => _allowPatientInfoEdit;
+            set
+            {
+                _allowPatientInfoEdit = value;
+                OnPropertyChanged();
+            }
+        }
+        private bool _isPatientLoggedIn = false;
+        public bool IsPatientLoggedIn
+        {
+            get => _isPatientLoggedIn;
+            set
+            {
+                _isPatientLoggedIn = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string _patientName;
         public string PatientName
         {
@@ -42,7 +63,6 @@ namespace ProjectMaui.ViewModels
                 OnPropertyChanged();
             }
         }
-
         private string _patientAddress;
         public string PatientAddress
         {
@@ -116,7 +136,7 @@ namespace ProjectMaui.ViewModels
         public BookingViewModel(DoctorInfoModel doctor)
         {
             _selectedDoctor = doctor;
-            
+
             // Lấy các service thông qua Service Locator vì ViewModel này được new thủ công
             var services = IPlatformApplication.Current.Services;
             _doctorService = services.GetService<DoctorService>();
@@ -127,7 +147,15 @@ namespace ProjectMaui.ViewModels
 
             BookAppointmentCommand = new Command(async () => await BookAppointmentAsync());
             LoadScheduleCommand = new Command(async () => await LoadDoctorScheduleAsync());
-
+            // Check current user
+            var currentUser = UserSession.Current;
+            if (currentUser.IsLoggedIn && currentUser.Role == "Patient")
+            {
+                PatientName = currentUser.FullName;
+                PatientPhone = currentUser.PhoneNumber;
+                AllowPatientInfoEdit = false;
+                IsPatientLoggedIn = true;
+            }
             _ = LoadDoctorScheduleAsync();
         }
 
@@ -198,24 +226,45 @@ namespace ProjectMaui.ViewModels
             IsLoading = true;
             try
             {
-                // Check or create patient
-                var patient = await _patientService.GetPatientByPhoneAsync(PatientPhone);
-                if (patient == null)
+                int patientIdToUse = 0;
+                var currentUser = UserSession.Current;
+
+                if (currentUser.IsLoggedIn && currentUser.Role == "Patient")
                 {
-                    var newPatient = new PatientModel
+                    patientIdToUse = currentUser.PatientId;
+                }
+                else
+                {
+                    // Check or create patient if not booking for self
+                    var patient = await _patientService.GetPatientByPhoneAsync(PatientPhone);
+                    if (patient == null)
                     {
-                        PatientName = PatientName,
-                        Phone = PatientPhone,
-                        Address = PatientAddress
-                    };
-                    var patientId = await _patientService.AddPatientAsync(newPatient);
-                    if (patientId <= 0)
-                    {
-                        await App.Current.MainPage.DisplayAlert("Lỗi", "Không thể tạo thông tin bệnh nhân", "OK");
-                        return;
+                        var newPatient = new PatientModel
+                        {
+                            PatientName = PatientName,
+                            Phone = PatientPhone,
+                            Address = PatientAddress
+                        };
+                        var newPatientId = await _patientService.AddPatientAsync(newPatient);
+                        if (newPatientId <= 0)
+                        {
+                            await App.Current.MainPage.DisplayAlert("Lỗi", "Không thể tạo thông tin bệnh nhân", "OK");
+                            IsLoading = false;
+                            return;
+                        }
+                        patientIdToUse = newPatientId;
                     }
-                    patient = newPatient;
-                    patient.PatientId = patientId;
+                    else
+                    {
+                        patientIdToUse = patient.PatientId;
+                    }
+                }
+                
+                if (patientIdToUse <= 0)
+                {
+                    await App.Current.MainPage.DisplayAlert("Lỗi", "Không xác định được thông tin bệnh nhân.", "OK");
+                    IsLoading = false;
+                    return;
                 }
 
                 // Create appointment
@@ -223,7 +272,7 @@ namespace ProjectMaui.ViewModels
                 var appointment = new AppointmentModel
                 {
                     DoctorId = _selectedDoctor.DoctorId,
-                    PatientId = patient.PatientId,
+                    PatientId = patientIdToUse,
                     AppointmentDate = appointmentDate,
                     Reason = Reason,
                     Status = "Chờ xác nhận"
@@ -238,11 +287,14 @@ namespace ProjectMaui.ViewModels
                         "OK"
                     );
 
-                    // Clear form
-                    PatientName = "";
-                    PatientPhone = "";
-                    PatientAddress = "";
-                    Reason = "";
+                    // Clear form only if an admin/doctor booked it
+                    if (AllowPatientInfoEdit)
+                    {
+                        PatientName = "";
+                        PatientPhone = "";
+                        PatientAddress = "";
+                        Reason = "";
+                    }
 
                     // Navigate back
                     await Shell.Current.GoToAsync("..");

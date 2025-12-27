@@ -28,7 +28,7 @@ namespace ProjectMaui.Services
                             a.PhoneNumber, 
                             r.RoleName,
                             p.PatientId, p.PatientName,
-                            d.DoctorId, d.DoctorName
+                            d.DoctorId, d.DoctorName, d.Image
                         FROM Accounts a
                         JOIN Roles r ON a.RoleId = r.RoleId
                         LEFT JOIN Patients p ON a.AccountId = p.AccountId
@@ -60,6 +60,7 @@ namespace ProjectMaui.Services
                                 {
                                     UserSession.Current.DoctorId = reader["DoctorId"] != DBNull.Value ? Convert.ToInt32(reader["DoctorId"]) : 0;
                                     UserSession.Current.FullName = reader["DoctorName"]?.ToString();
+                                    UserSession.Current.Image = reader["Image"]?.ToString();
                                 }
                                 else if (UserSession.Current.Role == "Admin")
                                 {

@@ -18,10 +18,23 @@ public partial class MainPage : ContentPage
         if (UserSession.Current.IsLoggedIn)
         {
             lblWelcome.Text = UserSession.Current.FullName;
+            lblPhone.Text = UserSession.Current.PhoneNumber;
+
+            //// Cập nhật ảnh đại diện
+            //if (!string.IsNullOrEmpty(UserSession.Current.Image))
+            //{
+            //    imgAvatar.Source = ImageSource.FromUri(new Uri(UserSession.Current.Image));
+            //}
+            //else
+            //{
+            //    imgAvatar.Source = "user_icon.png"; // Ảnh mặc định
+            //}
         }
         else
         {
             lblWelcome.Text = "Khách vãng lai";
+            lblPhone.Text = "Vui lòng đăng nhập";
+            //imgAvatar.Source = "dotnet_bot.png"; // Reset về ảnh mặc định
         }
     }
 
