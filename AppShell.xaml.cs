@@ -15,8 +15,8 @@ namespace ProjectMaui
         public void SetupTabsForRole()
         {
             var role = UserSession.Current.Role;
-            // The doctor list should be visible to all logged-in roles.
-            if (role == "Patient" || role == "Admin" || role == "Doctor")
+
+            if (role == "Patient" || role == "Admin")
             {
                 DoctorListTab.IsEnabled = true;
                 DoctorListTab.IsVisible = true;
