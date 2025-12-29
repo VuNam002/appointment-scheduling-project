@@ -13,6 +13,7 @@ namespace ProjectMaui.ViewModels
     {
         private string _doctorName;
         private string _phone;
+        private string _email;
         private string _password;
         private string _specialization;
         private DepartmentModel _selectedDepartment;
@@ -31,6 +32,12 @@ namespace ProjectMaui.ViewModels
         {
             get => _phone;
             set => SetProperty(ref _phone, value);
+        }
+
+        public string Email
+        {
+            get => _email;
+            set => SetProperty(ref _email, value);
         }
 
         public string Password
@@ -108,6 +115,7 @@ namespace ProjectMaui.ViewModels
 
             if (string.IsNullOrWhiteSpace(DoctorName) ||
                 string.IsNullOrWhiteSpace(Phone) ||
+                string.IsNullOrWhiteSpace(Email) ||
                 string.IsNullOrWhiteSpace(Password) ||
                 SelectedDepartment == null)
             {
@@ -117,7 +125,7 @@ namespace ProjectMaui.ViewModels
 
             IsLoading = true;
 
-            var errorMessage = await _authService.RegisterDoctorAsync(DoctorName, Phone, Password, SelectedDepartment.DepartmentId, Specialization);
+            var errorMessage = await _authService.RegisterDoctorAsync(DoctorName, Phone, Email, Password, SelectedDepartment.DepartmentId, Specialization);
 
             IsLoading = false;
 
@@ -127,6 +135,7 @@ namespace ProjectMaui.ViewModels
                 // Optionally, navigate back or clear the form
                 DoctorName = string.Empty;
                 Phone = string.Empty;
+                Email = string.Empty;
                 Password = string.Empty;
                 Specialization = string.Empty;
                 SelectedDepartment = null;

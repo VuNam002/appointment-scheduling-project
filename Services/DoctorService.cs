@@ -8,6 +8,7 @@ namespace ProjectMaui.Services
 {
     public class DoctorService : BaseService
     {
+        //lấy tất cả các bác sĩ trong cơ sở dữ liệu
         public async Task<List<DoctorInfoModel>> GetDoctorsAsync()
         {
             var doctors = new List<DoctorInfoModel>();
@@ -40,7 +41,7 @@ namespace ProjectMaui.Services
             }
             return doctors;
         }
-
+        //Lấy thông tin chi tiết của một bác sĩ theo id
         public async Task<DoctorInfoModel> GetDoctorByIdAsync(int doctorId)
         {
             try
@@ -77,7 +78,7 @@ namespace ProjectMaui.Services
             }
             return null;
         }
-
+        //Lấy thông tin bác sĩ thuộc khoa
         public async Task<List<DoctorInfoModel>> GetDoctorsByDepartmentAsync(int departmentId)
         {
             var doctors = new List<DoctorInfoModel>();
@@ -115,7 +116,7 @@ namespace ProjectMaui.Services
             }
             return doctors;
         }
-
+        //Lấy lịch làm việc của bác sĩ
         public async Task<List<DoctorScheduleModel>> GetDoctorScheduleAsync(int doctorId)
         {
             var schedules = new List<DoctorScheduleModel>();
@@ -157,7 +158,7 @@ namespace ProjectMaui.Services
             }
             return schedules;
         }
-
+        //ây là hàm phụ trợ (private helper method), dùng để chuyển đổi dữ liệu thô từ cơ sở dữ liệu sang đối tượng C#
         private DoctorInfoModel MapDoctorFromReader(SqlDataReader reader)
         {
             return new DoctorInfoModel

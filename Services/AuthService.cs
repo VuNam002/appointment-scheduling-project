@@ -83,7 +83,7 @@ namespace ProjectMaui.Services
             UserSession.Current.Clear();
         }
 
-        public async Task<string> RegisterDoctorAsync(string doctorName, string phone, string password, int departmentId, string specialization)
+        public async Task<string> RegisterDoctorAsync(string doctorName, string phone, string email, string password, int departmentId, string specialization)
         {
             if (UserSession.Current.Role != "Admin")
             {
@@ -96,15 +96,25 @@ namespace ProjectMaui.Services
             {
                 await connection.OpenAsync();
 
-                // Check for existing user by phone number
-                string checkUserQuery = "SELECT COUNT(1) FROM Accounts WHERE PhoneNumber = @PhoneNumber";
-                using (SqlCommand checkUserCommand = new SqlCommand(checkUserQuery, connection))
+                // Check for existing account by phone number
+                string checkAccountQuery = "SELECT COUNT(1) FROM Accounts WHERE PhoneNumber = @PhoneNumber";
+                using (SqlCommand checkAccountCommand = new SqlCommand(checkAccountQuery, connection))
                 {
-                    checkUserCommand.Parameters.AddWithValue("@PhoneNumber", phone);
-                    int userExists = (int)await checkUserCommand.ExecuteScalarAsync();
-                    if (userExists > 0)
+                    checkAccountCommand.Parameters.AddWithValue("@PhoneNumber", phone);
+                    if ((int)await checkAccountCommand.ExecuteScalarAsync() > 0)
                     {
-                        return "Số điện thoại đã tồn tại.";
+                        return "Số điện thoại đã được sử dụng cho tài khoản khác.";
+                    }
+                }
+
+                // Check for existing doctor by email
+                string checkDoctorQuery = "SELECT COUNT(1) FROM Doctors WHERE Email = @Email";
+                using (SqlCommand checkDoctorCommand = new SqlCommand(checkDoctorQuery, connection))
+                {
+                    checkDoctorCommand.Parameters.AddWithValue("@Email", email);
+                    if ((int)await checkDoctorCommand.ExecuteScalarAsync() > 0)
+                    {
+                        return "Email đã được sử dụng cho bác sĩ khác.";
                     }
                 }
 
@@ -112,7 +122,7 @@ namespace ProjectMaui.Services
                 {
                     try
                     {
-                        // 1. Create Account
+                        // 1. Create Account (without Email)
                         string accountQuery = @"
                             INSERT INTO Accounts (PhoneNumber, PasswordHash, RoleId, IsActive, CreatedAt)
                             OUTPUT INSERTED.AccountId
@@ -122,7 +132,7 @@ namespace ProjectMaui.Services
                         using (SqlCommand accountCommand = new SqlCommand(accountQuery, connection, transaction))
                         {
                             accountCommand.Parameters.AddWithValue("@PhoneNumber", phone);
-                            accountCommand.Parameters.AddWithValue("@PasswordHash", password); // Note: Password should be hashed in a real app
+                            accountCommand.Parameters.AddWithValue("@PasswordHash", password);
                             accountCommand.Parameters.AddWithValue("@RoleId", doctorRoleId);
                             
                             accountId = (int)await accountCommand.ExecuteScalarAsync();
@@ -133,15 +143,16 @@ namespace ProjectMaui.Services
                             throw new Exception("Account creation failed, returned no AccountId.");
                         }
 
-                        // 2. Create Doctor
+                        // 2. Create Doctor (with Email)
                         string doctorQuery = @"
-                            INSERT INTO Doctors (DoctorName, Phone, DepartmentId, Specialization, AccountId)
-                            VALUES (@DoctorName, @Phone, @DepartmentId, @Specialization, @AccountId);";
+                            INSERT INTO Doctors (DoctorName, Phone, Email, DepartmentId, Specialization, AccountId)
+                            VALUES (@DoctorName, @Phone, @Email, @DepartmentId, @Specialization, @AccountId);";
                         
                         using (SqlCommand doctorCommand = new SqlCommand(doctorQuery, connection, transaction))
                         {
                             doctorCommand.Parameters.AddWithValue("@DoctorName", doctorName);
                             doctorCommand.Parameters.AddWithValue("@Phone", phone);
+                            doctorCommand.Parameters.AddWithValue("@Email", email);
                             doctorCommand.Parameters.AddWithValue("@DepartmentId", departmentId);
                             doctorCommand.Parameters.AddWithValue("@Specialization", specialization ?? (object)DBNull.Value);
                             doctorCommand.Parameters.AddWithValue("@AccountId", accountId);

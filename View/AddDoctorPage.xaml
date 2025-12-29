@@ -15,6 +15,9 @@
             <Label Text="Mật khẩu" />
             <Entry Text="{Binding Password}" IsPassword="True" Placeholder="Nhập mật khẩu" />
 
+            <Label Text="Email" />
+            <Entry Text="{Binding Email}" Placeholder="Nhập email" Keyboard="Email" />
+
             <Label Text="Chuyên môn" />
             <Entry Text="{Binding Specialization}" Placeholder="VD: Tim mạch, Da liễu,..." />
             
