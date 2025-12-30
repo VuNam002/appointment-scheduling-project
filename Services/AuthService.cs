@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 
@@ -83,11 +83,11 @@ namespace ProjectMaui.Services
             UserSession.Current.Clear();
         }
 
-        public async Task<string> RegisterDoctorAsync(string doctorName, string phone, string email, string password, int departmentId, string specialization)
+        public async Task<(string ErrorMessage, int NewDoctorId)> RegisterDoctorAsync(string doctorName, string phone, string password, int departmentId, string specialization)
         {
             if (UserSession.Current.Role != "Admin")
             {
-                return "Bạn không có quyền thực hiện chức năng này.";
+                return ("Bạn không có quyền thực hiện chức năng này.", 0);
             }
 
             int doctorRoleId = 2; // Assuming 'Doctor' role has ID 2
@@ -96,25 +96,15 @@ namespace ProjectMaui.Services
             {
                 await connection.OpenAsync();
 
-                // Check for existing account by phone number
-                string checkAccountQuery = "SELECT COUNT(1) FROM Accounts WHERE PhoneNumber = @PhoneNumber";
-                using (SqlCommand checkAccountCommand = new SqlCommand(checkAccountQuery, connection))
+                // Check for existing user by phone number
+                string checkUserQuery = "SELECT COUNT(1) FROM Accounts WHERE PhoneNumber = @PhoneNumber";
+                using (SqlCommand checkUserCommand = new SqlCommand(checkUserQuery, connection))
                 {
-                    checkAccountCommand.Parameters.AddWithValue("@PhoneNumber", phone);
-                    if ((int)await checkAccountCommand.ExecuteScalarAsync() > 0)
+                    checkUserCommand.Parameters.AddWithValue("@PhoneNumber", phone);
+                    int userExists = (int)await checkUserCommand.ExecuteScalarAsync();
+                    if (userExists > 0)
                     {
-                        return "Số điện thoại đã được sử dụng cho tài khoản khác.";
-                    }
-                }
-
-                // Check for existing doctor by email
-                string checkDoctorQuery = "SELECT COUNT(1) FROM Doctors WHERE Email = @Email";
-                using (SqlCommand checkDoctorCommand = new SqlCommand(checkDoctorQuery, connection))
-                {
-                    checkDoctorCommand.Parameters.AddWithValue("@Email", email);
-                    if ((int)await checkDoctorCommand.ExecuteScalarAsync() > 0)
-                    {
-                        return "Email đã được sử dụng cho bác sĩ khác.";
+                        return ("Số điện thoại đã tồn tại.", 0);
                     }
                 }
 
@@ -122,7 +112,7 @@ namespace ProjectMaui.Services
                 {
                     try
                     {
-                        // 1. Create Account (without Email)
+                        // 1. Create Account
                         string accountQuery = @"
                             INSERT INTO Accounts (PhoneNumber, PasswordHash, RoleId, IsActive, CreatedAt)
                             OUTPUT INSERTED.AccountId
@@ -132,7 +122,7 @@ namespace ProjectMaui.Services
                         using (SqlCommand accountCommand = new SqlCommand(accountQuery, connection, transaction))
                         {
                             accountCommand.Parameters.AddWithValue("@PhoneNumber", phone);
-                            accountCommand.Parameters.AddWithValue("@PasswordHash", password);
+                            accountCommand.Parameters.AddWithValue("@PasswordHash", password); // Note: Password should be hashed in a real app
                             accountCommand.Parameters.AddWithValue("@RoleId", doctorRoleId);
                             
                             accountId = (int)await accountCommand.ExecuteScalarAsync();
@@ -143,31 +133,32 @@ namespace ProjectMaui.Services
                             throw new Exception("Account creation failed, returned no AccountId.");
                         }
 
-                        // 2. Create Doctor (with Email)
+                        // 2. Create Doctor
                         string doctorQuery = @"
-                            INSERT INTO Doctors (DoctorName, Phone, Email, DepartmentId, Specialization, AccountId)
-                            VALUES (@DoctorName, @Phone, @Email, @DepartmentId, @Specialization, @AccountId);";
+                            INSERT INTO Doctors (DoctorName, Phone, DepartmentId, Specialization, AccountId)
+                            OUTPUT INSERTED.DoctorId
+                            VALUES (@DoctorName, @Phone, @DepartmentId, @Specialization, @AccountId);";
                         
+                        int newDoctorId;
                         using (SqlCommand doctorCommand = new SqlCommand(doctorQuery, connection, transaction))
                         {
                             doctorCommand.Parameters.AddWithValue("@DoctorName", doctorName);
                             doctorCommand.Parameters.AddWithValue("@Phone", phone);
-                            doctorCommand.Parameters.AddWithValue("@Email", email);
                             doctorCommand.Parameters.AddWithValue("@DepartmentId", departmentId);
                             doctorCommand.Parameters.AddWithValue("@Specialization", specialization ?? (object)DBNull.Value);
                             doctorCommand.Parameters.AddWithValue("@AccountId", accountId);
 
-                            await doctorCommand.ExecuteNonQueryAsync();
+                            newDoctorId = (int)await doctorCommand.ExecuteScalarAsync();
                         }
 
                         transaction.Commit();
-                        return null; // Success
+                        return (null, newDoctorId); // Success
                     }
                     catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine($"Lỗi RegisterDoctorAsync: {ex.Message}");
                         await transaction.RollbackAsync();
-                        return "Đã xảy ra lỗi trong quá trình đăng ký.";
+                        return ("Đã xảy ra lỗi trong quá trình đăng ký.", 0);
                     }
                 }
             }

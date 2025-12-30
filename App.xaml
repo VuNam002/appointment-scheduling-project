@@ -8,8 +8,7 @@
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
             <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter"/>
             <converters:StatusToCancelButtonVisibilityConverter x:Key="StatusToCancelButtonVisibilityConverter"/>
+            <converters:DayOfWeekConverter x:Key="DayOfWeekConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
-
-<!--// App.xaml: Định nghĩa các tài nguyên dùng chung như màu sắc, styles-->

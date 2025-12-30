@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Collections.Generic;
 using Microsoft.Maui.Controls;
 
 namespace ProjectMaui.ViewModels
@@ -17,10 +18,13 @@ namespace ProjectMaui.ViewModels
         private string _password;
         private string _specialization;
         private DepartmentModel _selectedDepartment;
+        private DoctorScheduleModel _selectedDoctor;
         private ObservableCollection<DepartmentModel> _departments;
+        private ObservableCollection<DoctorScheduleModel> _pendingSchedules;
 
         private readonly DepartmentService _departmentService;
         private readonly AuthService _authService;
+        private readonly DoctorService _doctorService;
 
         public string DoctorName
         {
@@ -57,6 +61,11 @@ namespace ProjectMaui.ViewModels
             get => _selectedDepartment;
             set => SetProperty(ref _selectedDepartment, value);
         }
+        public DoctorScheduleModel SelectedDoctor
+        {
+            get => _selectedDoctor;
+            set => SetProperty(ref _selectedDoctor, value);
+        }
 
         public ObservableCollection<DepartmentModel> Departments
         {
@@ -64,17 +73,56 @@ namespace ProjectMaui.ViewModels
             set => SetProperty(ref _departments, value);
         }
 
+        // Danh sách lịch làm việc đang chờ thêm
+        public ObservableCollection<DoctorScheduleModel> PendingSchedules
+        {
+            get => _pendingSchedules;
+            set => SetProperty(ref _pendingSchedules, value);
+        }
+
+        // Danh sách ngày để hiển thị trong Picker
+        public List<string> DaysList { get; } = new List<string> { "Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7" };
+
+        // Thêm các thuộc tính cho lịch làm việc
+        private int _selectedDayIndex = 1; // Index trong DaysList (0=CN, 1=T2...)
+        public int SelectedDayIndex
+        {
+            get => _selectedDayIndex;
+            set => SetProperty(ref _selectedDayIndex, value);
+        }
+
+        private TimeSpan _startTime = new TimeSpan(8, 0, 0); // 08:00
+        public TimeSpan StartTime
+        {
+            get => _startTime;
+            set => SetProperty(ref _startTime, value);
+        }
+
+        private TimeSpan _endTime = new TimeSpan(17, 0, 0); // 17:00
+        public TimeSpan EndTime
+        {
+            get => _endTime;
+            set => SetProperty(ref _endTime, value);
+        }
+
         public ICommand AddDoctorCommand { get; }
         public ICommand LoadDepartmentsCommand { get; }
+        public ICommand AddScheduleCommand { get; }
+        public ICommand RemoveScheduleCommand { get; }
 
 
         public AddDoctorViewModel()
         {
             _departmentService = new DepartmentService();
             _authService = new AuthService();
+            _doctorService = new DoctorService();
             Departments = new ObservableCollection<DepartmentModel>();
+            PendingSchedules = new ObservableCollection<DoctorScheduleModel>();
+            
             AddDoctorCommand = new Command(async () => await OnAddDoctor());
             LoadDepartmentsCommand = new Command(async () => await LoadDepartments());
+            AddScheduleCommand = new Command(OnAddSchedule);
+            RemoveScheduleCommand = new Command<DoctorScheduleModel>(OnRemoveSchedule);
 
             // Load departments when the view model is created
             Task.Run(async () => await LoadDepartments());
@@ -89,11 +137,14 @@ namespace ProjectMaui.ViewModels
             try
             {
                 var departmentsList = await _departmentService.GetDepartmentsAsync();
-                Departments.Clear();
-                foreach (var dept in departmentsList)
+                Application.Current.Dispatcher.Dispatch(() =>
                 {
-                    Departments.Add(dept);
-                }
+                    Departments.Clear();
+                    foreach (var dept in departmentsList)
+                    {
+                        Departments.Add(dept);
+                    }
+                });
             }
             catch (System.Exception ex)
             {
@@ -102,6 +153,35 @@ namespace ProjectMaui.ViewModels
             finally
             {
                 IsLoading = false;
+            }
+        }
+
+        private void OnAddSchedule()
+        {
+            if (StartTime >= EndTime)
+            {
+                Application.Current.MainPage.DisplayAlert("Lỗi", "Giờ kết thúc phải lớn hơn giờ bắt đầu", "OK");
+                return;
+            }
+
+            // Tạo model lịch mới
+            var schedule = new DoctorScheduleModel
+            {
+                DayOfWeek = SelectedDayIndex, // 0=CN, 1=T2... khớp với index của Picker
+                StartTime = StartTime,
+                EndTime = EndTime,
+                // Giả sử Model có thuộc tính hiển thị, nếu không có thì UI sẽ tự format
+                // DayOfWeekName = DaysList[SelectedDayIndex] 
+            };
+
+            PendingSchedules.Add(schedule);
+        }
+
+        private void OnRemoveSchedule(DoctorScheduleModel schedule)
+        {
+            if (PendingSchedules.Contains(schedule))
+            {
+                PendingSchedules.Remove(schedule);
             }
         }
 
@@ -123,15 +203,29 @@ namespace ProjectMaui.ViewModels
                 return;
             }
 
+            if (PendingSchedules.Count == 0)
+            {
+                bool confirm = await Application.Current.MainPage.DisplayAlert("Xác nhận", "Bạn chưa thêm lịch làm việc nào. Bạn có chắc muốn tạo bác sĩ không?", "Có", "Không");
+                if (!confirm) return;
+            }
+
             IsLoading = true;
 
-            var errorMessage = await _authService.RegisterDoctorAsync(DoctorName, Phone, Email, Password, SelectedDepartment.DepartmentId, Specialization);
+            // 1. Tạo bác sĩ và lấy ID
+            var result = await _authService.RegisterDoctorAsync(DoctorName, Phone, Password, SelectedDepartment.DepartmentId, Specialization);
 
-            IsLoading = false;
-
-            if (string.IsNullOrEmpty(errorMessage))
+            if (string.IsNullOrEmpty(result.ErrorMessage))
             {
-                await Application.Current.MainPage.DisplayAlert("Thành công", "Thêm bác sĩ thành công.", "OK");
+                // 2. Nếu thành công, thêm danh sách lịch làm việc cho bác sĩ đó
+                foreach (var schedule in PendingSchedules)
+                {
+                    schedule.DoctorId = result.NewDoctorId;
+                    await _doctorService.AddDoctorScheduleAsync(schedule);
+                }
+
+                IsLoading = false;
+                await Application.Current.MainPage.DisplayAlert("Thành công", "Thêm bác sĩ và lịch làm việc thành công.", "OK");
+                
                 // Optionally, navigate back or clear the form
                 DoctorName = string.Empty;
                 Phone = string.Empty;
@@ -139,10 +233,12 @@ namespace ProjectMaui.ViewModels
                 Password = string.Empty;
                 Specialization = string.Empty;
                 SelectedDepartment = null;
+                PendingSchedules.Clear();
             }
             else
             {
-                await Application.Current.MainPage.DisplayAlert("Lỗi", errorMessage, "OK");
+                IsLoading = false;
+                await Application.Current.MainPage.DisplayAlert("Lỗi", result.ErrorMessage, "OK");
             }
         }
     }
