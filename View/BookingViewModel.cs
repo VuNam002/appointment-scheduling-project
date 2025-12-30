@@ -21,6 +21,8 @@ namespace ProjectMaui.ViewModels
         public DoctorInfoModel SelectedDoctor => _selectedDoctor;
         public ObservableCollection<DoctorScheduleModel> DoctorSchedules { get; set; }
 
+        public bool IsAdmin => UserSession.Current.Role == "Admin";
+
         private bool _allowPatientInfoEdit = true;
         public bool AllowPatientInfoEdit
         {
