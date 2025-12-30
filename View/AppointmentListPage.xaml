@@ -2,7 +2,9 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:ProjectMaui.ViewModels"
+             xmlns:models="clr-namespace:ProjectMaui.Models"
              x:Class="ProjectMaui.View.AppointmentListPage"
+             x:Name="AppointmentListPageRoot"
              Title="Lịch hẹn của tôi">
 
     <Grid RowDefinitions="Auto,*" Padding="10">
@@ -51,7 +53,8 @@
 
         <CollectionView Grid.Row="1" 
                        ItemsSource="{Binding FilteredAppointments}"
-                       IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}">
+                       IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"
+                       SelectionMode="None">
 
             <CollectionView.EmptyView>
                 <VerticalStackLayout VerticalOptions="Center" 
@@ -68,7 +71,7 @@
             </CollectionView.EmptyView>
 
             <CollectionView.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="models:AppointmentDetailModel">
                     <Frame Margin="0,5" 
                            Padding="15"
                            BackgroundColor="White"
@@ -161,7 +164,7 @@
                                     HeightRequest="40"
                                     FontSize="14"
         
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:AppointmentListViewModel}}, Path=ViewDetailCommand}"
+                                    Command="{Binding BindingContext.ViewDetailCommand, Source={x:Reference AppointmentListPageRoot}}"
                                     CommandParameter="{Binding AppointmentId}"/>
 
                                 <Button Grid.Column="1"
@@ -171,7 +174,7 @@
                                         CornerRadius="8"
                                         HeightRequest="40"
                                         FontSize="14"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:AppointmentListViewModel}}, Path=CancelAppointmentCommand}"
+                                        Command="{Binding BindingContext.CancelAppointmentCommand, Source={x:Reference AppointmentListPageRoot}}"
                                         CommandParameter="{Binding AppointmentId}"
                                         IsVisible="{Binding CanCancel}"/>
                                 
@@ -182,7 +185,7 @@
                                         CornerRadius="8"
                                         HeightRequest="40"
                                         FontSize="14"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:AppointmentListViewModel}}, Path=UpdateStatusCommand}"
+                                        Command="{Binding BindingContext.UpdateStatusCommand, Source={x:Reference AppointmentListPageRoot}}"
                                         CommandParameter="{Binding .}"
                                         IsVisible="{Binding CanUpdateStatus}"/>
                             </Grid>
