@@ -25,7 +25,7 @@ namespace ProjectMaui.Services
             return await _appointmentRepository.GetAppointmentsByPatientAsync(patientId);
         }
 
-        public async Task<int> CreateAppointmentAsync(AppointmentModel appointment)
+        public async Task<(string ErrorMessage, int AppointmentId)> CreateAppointmentAsync(AppointmentModel appointment)
         {
             // Kiểm tra bác sĩ có làm việc không
             bool isAvailable = await _appointmentRepository.CheckDoctorAvailabilityAsync(
@@ -36,7 +36,7 @@ namespace ProjectMaui.Services
             if (!isAvailable)
             {
                 System.Diagnostics.Debug.WriteLine("Bác sĩ không làm việc vào thời gian này");
-                return -1;
+                return ("Bác sĩ không có lịch làm việc vào thời gian này. Vui lòng chọn khung giờ khác.", 0);
             }
 
             // Kiểm tra trùng lịch
@@ -48,10 +48,15 @@ namespace ProjectMaui.Services
             if (existingAppointments.Count > 0)
             {
                 System.Diagnostics.Debug.WriteLine("Khung giờ này đã có người đặt");
-                return -1;
+                return ("Khung giờ này đã có người đặt. Vui lòng chọn giờ khác.", 0);
             }
 
-            return await _appointmentRepository.CreateAppointmentAsync(appointment);
+            int newId = await _appointmentRepository.CreateAppointmentAsync(appointment);
+            if (newId > 0)
+            {
+                return (null, newId);
+            }
+            return ("Không thể tạo lịch hẹn do lỗi hệ thống.", 0);
         }
 
         public async Task<AppointmentDetailModel> GetAppointmentByIdAsync(int appointmentId)

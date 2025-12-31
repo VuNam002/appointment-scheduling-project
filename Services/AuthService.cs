@@ -1,10 +1,10 @@
 ﻿﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.Maui.Storage;
 
 namespace ProjectMaui.Services
 {
-    // 1. Thêm kế thừa : BaseService
     public class AuthService : BaseService
     {
         public AuthService()
@@ -63,6 +63,9 @@ namespace ProjectMaui.Services
                                 {
                                     UserSession.Current.FullName = "Quản trị viên";
                                 }
+                                await SecureStorage.SetAsync("Auth_Phone", phone);
+                                await SecureStorage.SetAsync("Auth_Password", password);
+                                await SecureStorage.SetAsync("Auth_LoginTime", DateTime.UtcNow.ToString()); // Dùng UTC
 
                                 return true;
                             }
@@ -81,6 +84,9 @@ namespace ProjectMaui.Services
         public void Logout()
         {
             UserSession.Current.Clear();
+            SecureStorage.Remove("Auth_Phone");
+            SecureStorage.Remove("Auth_Password");
+            SecureStorage.Remove("Auth_LoginTime");
         }
 
         public async Task<(string ErrorMessage, int NewDoctorId)> RegisterDoctorAsync(string doctorName, string phone, string password, int departmentId, string specialization)
@@ -90,13 +96,11 @@ namespace ProjectMaui.Services
                 return ("Bạn không có quyền thực hiện chức năng này.", 0);
             }
 
-            int doctorRoleId = 2; // Assuming 'Doctor' role has ID 2
+            int doctorRoleId = 2; 
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-
-                // Check for existing user by phone number
                 string checkUserQuery = "SELECT COUNT(1) FROM Accounts WHERE PhoneNumber = @PhoneNumber";
                 using (SqlCommand checkUserCommand = new SqlCommand(checkUserQuery, connection))
                 {
@@ -112,7 +116,6 @@ namespace ProjectMaui.Services
                 {
                     try
                     {
-                        // 1. Create Account
                         string accountQuery = @"
                             INSERT INTO Accounts (PhoneNumber, PasswordHash, RoleId, IsActive, CreatedAt)
                             OUTPUT INSERTED.AccountId
@@ -122,7 +125,7 @@ namespace ProjectMaui.Services
                         using (SqlCommand accountCommand = new SqlCommand(accountQuery, connection, transaction))
                         {
                             accountCommand.Parameters.AddWithValue("@PhoneNumber", phone);
-                            accountCommand.Parameters.AddWithValue("@PasswordHash", password); // Note: Password should be hashed in a real app
+                            accountCommand.Parameters.AddWithValue("@PasswordHash", password); 
                             accountCommand.Parameters.AddWithValue("@RoleId", doctorRoleId);
                             
                             accountId = (int)await accountCommand.ExecuteScalarAsync();
@@ -162,6 +165,28 @@ namespace ProjectMaui.Services
                     }
                 }
             }
+        }
+
+        public async Task<bool> TryAutoLoginAsync()
+        {
+            var phone = await SecureStorage.GetAsync("Auth_Phone");
+            var password = await SecureStorage.GetAsync("Auth_Password");
+            var loginTimeStr = await SecureStorage.GetAsync("Auth_LoginTime");
+
+            if (!string.IsNullOrEmpty(phone) && !string.IsNullOrEmpty(password) && !string.IsNullOrEmpty(loginTimeStr))
+            {
+                if (DateTime.TryParse(loginTimeStr, out DateTime loginTime))
+                {
+                    // Nếu quá 30 phút kể từ lần cuối đăng nhập -> Hủy phiên
+                    if (DateTime.Now - loginTime > TimeSpan.FromMinutes(30))
+                    {
+                        Logout(); 
+                        return false;
+                    }
+                }
+                return await LoginAsync(phone, password);
+            }
+            return false;
         }
     }
 }

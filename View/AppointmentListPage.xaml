@@ -7,6 +7,16 @@
              x:Name="AppointmentListPageRoot"
              Title="Lịch hẹn của tôi">
 
+    <Shell.TitleView>
+        <Grid HorizontalOptions="Fill" VerticalOptions="Fill">
+            <Label Text="Lịch hẹn của tôi"
+                   FontSize="30"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+        </Grid>
+    </Shell.TitleView>
+
     <Grid RowDefinitions="Auto,*" Padding="10">
 
         <Frame Grid.Row="0" 

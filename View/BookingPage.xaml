@@ -4,6 +4,16 @@
              xmlns:System="clr-namespace:System;assembly=mscorlib"
              x:Class="ProjectMaui.View.BookingPage"
              Title="Đặt lịch khám">
+    <Shell.TitleView>
+        <Grid HorizontalOptions="Fill" VerticalOptions="Center">
+            <Label Text="Đặt lịch khám"
+                   FontSize="35"
+                   FontAttributes="Bold"
+                   TextColor="Black" 
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Grid>
+    </Shell.TitleView>
 
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">

@@ -80,7 +80,6 @@ namespace ProjectMaui.ViewModels
             set => SetProperty(ref _pendingSchedules, value);
         }
 
-        // Danh sách ngày để hiển thị trong Picker
         public List<string> DaysList { get; } = new List<string> { "Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7" };
 
         // Thêm các thuộc tính cho lịch làm việc

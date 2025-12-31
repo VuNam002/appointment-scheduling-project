@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿﻿﻿﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -280,8 +280,8 @@ namespace ProjectMaui.ViewModels
                     Status = "Chờ xác nhận"
                 };
 
-                var appointmentId = await _appointmentService.CreateAppointmentAsync(appointment);
-                if (appointmentId > 0)
+                var result = await _appointmentService.CreateAppointmentAsync(appointment);
+                if (result.AppointmentId > 0)
                 {
                     await App.Current.MainPage.DisplayAlert(
                         "Thành công",
@@ -306,7 +306,7 @@ namespace ProjectMaui.ViewModels
                 }
                 else
                 {
-                    await App.Current.MainPage.DisplayAlert("Lỗi", "Không thể đặt lịch hẹn. Vui lòng chọn thời gian khác.", "OK");
+                    await App.Current.MainPage.DisplayAlert("Lỗi", result.ErrorMessage, "OK");
                 }
             }
             catch (Exception ex)

@@ -4,6 +4,16 @@
              x:Class="ProjectMaui.View.AppointmentDetailPage"
              Title="Chi tiết phiếu khám"
              BackgroundColor="#F5F5F5">
+    <Shell.TitleView>
+        <Grid HorizontalOptions="Fill" VerticalOptions="Center">
+            <Label Text="Lịch hẹn của tôi"
+                   FontSize="35"
+                   FontAttributes="Bold"
+                   TextColor="Black" 
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Grid>
+    </Shell.TitleView>
 
     <ScrollView>
         <Grid RowDefinitions="Auto,*" Padding="15" RowSpacing="15">

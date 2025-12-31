@@ -5,6 +5,16 @@
              x:Class="ProjectMaui.View.DoctorListPage"
              Title="Danh sách Bác sĩ">
 
+    <Shell.TitleView>
+        <Grid HorizontalOptions="Fill" VerticalOptions="Fill">
+            <Label Text="Danh sách Bác sĩ"
+                   FontSize="35"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+        </Grid>
+    </Shell.TitleView>
+
     <Grid RowDefinitions="Auto,*" Padding="10">
 
         <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,0,0,15">

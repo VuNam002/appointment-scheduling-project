@@ -6,6 +6,15 @@
              
              Title="Cá nhân"
              BackgroundColor="#F5F5F5">
+    <Shell.TitleView>
+        <Grid HorizontalOptions="Fill" VerticalOptions="Fill">
+            <Label Text="Cá nhân"
+                   FontSize="35"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+        </Grid>
+    </Shell.TitleView>
 
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
