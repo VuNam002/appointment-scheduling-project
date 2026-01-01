@@ -12,8 +12,6 @@ namespace ProjectMaui.ViewModels
         private readonly AppointmentService _appointmentService;
         private List<AppointmentDetailModel> _allAppointments;
         public ObservableCollection<AppointmentDetailModel> FilteredAppointments { get; set; }
-
-        // Bộ lọc trạng thái
         private string _selectedFilter = "Tất cả";
         public string SelectedFilter
         {
@@ -35,8 +33,6 @@ namespace ProjectMaui.ViewModels
         public AppointmentListViewModel()
         {
             _appointmentService = new AppointmentService();
-
-            // Khởi tạo 2 danh sách để tránh lỗi Null
             _allAppointments = new List<AppointmentDetailModel>();
             FilteredAppointments = new ObservableCollection<AppointmentDetailModel>();
 
@@ -44,8 +40,6 @@ namespace ProjectMaui.ViewModels
             CancelAppointmentCommand = new Command<int>(async (id) => await CancelAppointmentAsync(id));
             ViewDetailCommand = new Command<int>(async (id) => await OnViewDetail(id));
             UpdateStatusCommand = new Command<AppointmentDetailModel>(async (model) => await UpdateAppointmentStatusAsync(model));
-
-            // Subscribe to event to refresh list
             AppEventService.AppointmentsChanged += HandleAppointmentsChanged;
         }
 

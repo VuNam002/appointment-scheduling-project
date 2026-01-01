@@ -18,11 +18,12 @@ namespace ProjectMaui.Services
                     await connection.OpenAsync();
                     string query = @"
                         SELECT 
-                            d.DoctorId, d.DoctorName, d.Phone, d.Email, 
+                            d.DoctorId, d.AccountId, d.DoctorName, d.Phone, d.Email, 
                             d.DepartmentId, d.Specialization, d.Image,
                             dept.DepartmentName, dept.Location
                         FROM Doctors d
-                        LEFT JOIN Departments dept ON d.DepartmentId = dept.DepartmentId";
+                        LEFT JOIN Departments dept ON d.DepartmentId = dept.DepartmentId
+                        WHERE d.IsDeleted IS NULL OR d.IsDeleted = 0";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     using (SqlDataReader reader = await command.ExecuteReaderAsync())
@@ -50,12 +51,12 @@ namespace ProjectMaui.Services
                     await connection.OpenAsync();
                     string query = @"
                         SELECT 
-                            d.DoctorId, d.DoctorName, d.Phone, d.Email, 
+                            d.DoctorId, d.AccountId, d.DoctorName, d.Phone, d.Email, 
                             d.DepartmentId, d.Specialization, d.Image,
                             dept.DepartmentName, dept.Location
                         FROM Doctors d
                         LEFT JOIN Departments dept ON d.DepartmentId = dept.DepartmentId
-                        WHERE d.DoctorId = @DoctorId";
+                        WHERE d.DoctorId = @DoctorId AND (d.IsDeleted IS NULL OR d.IsDeleted = 0)";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -88,12 +89,12 @@ namespace ProjectMaui.Services
                     await connection.OpenAsync();
                     string query = @"
                         SELECT 
-                            d.DoctorId, d.DoctorName, d.Phone, d.Email, 
+                            d.DoctorId, d.AccountId, d.DoctorName, d.Phone, d.Email, 
                             d.DepartmentId, d.Specialization, d.Image,
                             dept.DepartmentName, dept.Location
                         FROM Doctors d
                         LEFT JOIN Departments dept ON d.DepartmentId = dept.DepartmentId
-                        WHERE d.DepartmentId = @DepartmentId";
+                        WHERE d.DepartmentId = @DepartmentId AND (d.IsDeleted IS NULL OR d.IsDeleted = 0)";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -163,8 +164,10 @@ namespace ProjectMaui.Services
             return new DoctorInfoModel
             {
                 DoctorId = Convert.ToInt32(reader["DoctorId"]),
+                AccountId = Convert.ToInt32(reader["AccountId"]),
                 DoctorName = reader["DoctorName"]?.ToString() ?? "",
                 Phone = reader["Phone"]?.ToString() ?? "",
+                Email = reader["Email"]?.ToString() ?? "",
                 DepartmentId = reader["DepartmentId"] == DBNull.Value ? null : Convert.ToInt32(reader["DepartmentId"]),
                 Specialization = reader["Specialization"]?.ToString() ?? "",
                 Image = reader["Image"]?.ToString() ?? "",

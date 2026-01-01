@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:ProjectMaui.ViewModels"
              x:Class="ProjectMaui.View.DoctorListPage"
+             x:Name="ThisPage"
              Title="Danh sách Bác sĩ">
 
     <Shell.TitleView>
@@ -147,12 +148,18 @@
                                     </Label.FormattedText>
                                 </Label>
                             </VerticalStackLayout>
+                            
+                            <Button Grid.Column="2"
+                                    Text="Xóa"
+                                    BackgroundColor="#E74C3C"
+                                    TextColor="White"
+                                    CornerRadius="10"
+                                    HeightRequest="40"
+                                    VerticalOptions="Center"
+                                    Command="{Binding BindingContext.DeleteDoctorCommand, Source={x:Reference ThisPage}}"
+                                    CommandParameter="{Binding .}"
+                                    IsVisible="{Binding BindingContext.IsAdmin, Source={x:Reference ThisPage}}"/>
 
-                            <Label Grid.Column="2"
-                                   Text="›"
-                                   FontSize="30"
-                                   TextColor="#3498DB"
-                                   VerticalOptions="Center"/>
                         </Grid>
                     </Frame>
                 </DataTemplate>

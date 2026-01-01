@@ -83,11 +83,11 @@ namespace ProjectMaui.ViewModels
         public List<string> DaysList { get; } = new List<string> { "Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7" };
 
         // Thêm các thuộc tính cho lịch làm việc
-        private int _selectedDayIndex = 1; // Index trong DaysList (0=CN, 1=T2...)
-        public int SelectedDayIndex
+        private string _selectedDay = "Thứ 2";
+        public string SelectedDay
         {
-            get => _selectedDayIndex;
-            set => SetProperty(ref _selectedDayIndex, value);
+            get => _selectedDay;
+            set => SetProperty(ref _selectedDay, value);
         }
 
         private TimeSpan _startTime = new TimeSpan(8, 0, 0); // 08:00
@@ -163,14 +163,11 @@ namespace ProjectMaui.ViewModels
                 return;
             }
 
-            // Tạo model lịch mới
             var schedule = new DoctorScheduleModel
             {
-                DayOfWeek = SelectedDayIndex, // 0=CN, 1=T2... khớp với index của Picker
+                DayOfWeek = DaysList.IndexOf(SelectedDay), // 0=CN, 1=T2... khớp với index của Picker
                 StartTime = StartTime,
                 EndTime = EndTime,
-                // Giả sử Model có thuộc tính hiển thị, nếu không có thì UI sẽ tự format
-                // DayOfWeekName = DaysList[SelectedDayIndex] 
             };
 
             PendingSchedules.Add(schedule);

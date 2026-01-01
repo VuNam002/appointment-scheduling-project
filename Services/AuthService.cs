@@ -10,7 +10,6 @@ namespace ProjectMaui.Services
         public AuthService()
         {
         }
-
         public async Task<bool> LoginAsync(string phone, string password)
         {
             try
@@ -32,7 +31,8 @@ namespace ProjectMaui.Services
                         LEFT JOIN Doctors d ON a.AccountId = d.AccountId
                         WHERE a.PhoneNumber = @Phone 
                           AND a.PasswordHash = @Password 
-                          AND a.IsActive = 1";
+                          AND a.IsActive = 1
+                          AND a.IsDeleted = 0";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -79,6 +79,78 @@ namespace ProjectMaui.Services
             }
 
             return false;
+        }
+        public async Task<string> SoftDeleteUserAsync(int targetAccountId)
+        {
+            if(UserSession.Current.Role != "Admin") 
+            { 
+                return "Bạn không có quyền thực hiện chức năng này.";
+            }
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using (SqlTransaction transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        // BƯỚC 1: Xóa mềm trong bảng ACCOUNTS
+                        string queryAccount = @"
+                        UPDATE Accounts 
+                        SET IsDeleted = 1, 
+                        DeletedAt = GETDATE(), 
+                        IsActive = 0 
+                        WHERE AccountId = @AccountId";
+
+                        using (SqlCommand cmdAccount = new SqlCommand(queryAccount, connection, transaction))
+                        {
+                            cmdAccount.Parameters.AddWithValue("@AccountId", targetAccountId);
+                            int rowsAffected = await cmdAccount.ExecuteNonQueryAsync();
+
+                            if (rowsAffected == 0)
+                            {
+                                transaction.Rollback();
+                                return "Không tìm thấy tài khoản cần xóa.";
+                            }
+                        }
+
+                        // BƯỚC 2: Xóa mềm trong bảng DOCTORS (Nếu tài khoản này là Bác sĩ)
+                        string queryDoctor = @"
+                            UPDATE Doctors 
+                            SET IsDeleted = 1, 
+                            DeletedAt = GETDATE() 
+                            WHERE AccountId = @AccountId";
+
+                        using (SqlCommand cmdDoctor = new SqlCommand(queryDoctor, connection, transaction))
+                        {
+                            cmdDoctor.Parameters.AddWithValue("@AccountId", targetAccountId);
+                            await cmdDoctor.ExecuteNonQueryAsync();
+                        }
+
+                        // BƯỚC 3: Xóa mềm trong bảng PATIENTS (Nếu tài khoản này là Bệnh nhân)
+                        string queryPatient = @"
+                            UPDATE Patients 
+                            SET IsDeleted = 1, 
+                            DeletedAt = GETDATE() 
+                            WHERE AccountId = @AccountId";
+
+                        using (SqlCommand cmdPatient = new SqlCommand(queryPatient, connection, transaction))
+                        {
+                            cmdPatient.Parameters.AddWithValue("@AccountId", targetAccountId);
+                            await cmdPatient.ExecuteNonQueryAsync();
+                        }
+
+                        // Nếu mọi thứ OK thì Commit
+                        transaction.Commit();
+                        return null; // Trả về null nghĩa là thành công
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback(); // Hoàn tác nếu có lỗi
+                        System.Diagnostics.Debug.WriteLine($"Lỗi SoftDeleteUserAsync: {ex.Message}");
+                        return "Đã xảy ra lỗi khi xóa tài khoản.";
+                    }
+                }
+            }
         }
 
         public void Logout()

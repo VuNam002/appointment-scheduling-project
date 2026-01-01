@@ -1,8 +1,10 @@
-﻿// ViewModels/DoctorListViewModel.cs
+// ViewModels/DoctorListViewModel.cs
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using ProjectMaui.Models;
 using ProjectMaui.Services;
+using System;
+using System.Threading.Tasks;
 
 namespace ProjectMaui.ViewModels
 {
@@ -10,6 +12,7 @@ namespace ProjectMaui.ViewModels
     {
         private readonly DoctorService _doctorService;
         private readonly DepartmentService _departmentService;
+        private readonly AuthService _authService;
 
         public ObservableCollection<DoctorInfoModel> Doctors { get; } = new();
         public ObservableCollection<DepartmentModel> Departments { get; } = new();
@@ -29,15 +32,19 @@ namespace ProjectMaui.ViewModels
 
         public ICommand LoadDoctorsCommand { get; }
         public ICommand RefreshCommand { get; }
+        public ICommand DeleteDoctorCommand { get; }
+        public bool IsAdmin => UserSession.Current.Role == "Admin";
 
-        public DoctorListViewModel(DoctorService doctorService, DepartmentService departmentService)
+        public DoctorListViewModel(DoctorService doctorService, DepartmentService departmentService, AuthService authService)
         {
             _doctorService = doctorService;
             _departmentService = departmentService;
+            _authService = authService;
             Title = "Danh sách Bác sĩ";
 
             LoadDoctorsCommand = new Command(async () => await LoadDoctorsAsync());
             RefreshCommand = new Command(async () => await RefreshDataAsync());
+            DeleteDoctorCommand = new Command<DoctorInfoModel>(async (d) => await OnDeleteDoctor(d));
 
             _ = InitializeAsync();
         }
@@ -90,5 +97,45 @@ namespace ProjectMaui.ViewModels
         }
 
         private async Task RefreshDataAsync() => await InitializeAsync();
+        
+        private async Task OnDeleteDoctor(DoctorInfoModel doctor)
+        {
+            if (doctor == null) return;
+
+            bool confirm = await Application.Current.MainPage.DisplayAlert(
+                "Xác nhận xóa",
+                $"Bạn có chắc chắn muốn xóa bác sĩ '{doctor.DoctorName}' không? Hành động này không thể hoàn tác.",
+                "Xóa", "Hủy");
+
+            if (!confirm) return;
+
+            IsLoading = true;
+            try
+            {
+                var result = await _authService.SoftDeleteUserAsync(doctor.AccountId);
+                if (result == null) // Success
+                {
+                    await Application.Current.MainPage.DisplayAlert("Thành công", "Đã xóa bác sĩ.", "OK");
+                    // Efficiently remove from the list
+                    if (Doctors.Contains(doctor))
+                    {
+                        Doctors.Remove(doctor);
+                    }
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Lỗi", result, "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Lỗi OnDeleteDoctor: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Lỗi", "Đã xảy ra lỗi khi xóa bác sĩ.", "OK");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
     }
 }

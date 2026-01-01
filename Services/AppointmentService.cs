@@ -27,7 +27,6 @@ namespace ProjectMaui.Services
 
         public async Task<(string ErrorMessage, int AppointmentId)> CreateAppointmentAsync(AppointmentModel appointment)
         {
-            // Kiểm tra bác sĩ có làm việc không
             bool isAvailable = await _appointmentRepository.CheckDoctorAvailabilityAsync(
                 appointment.DoctorId,
                 appointment.AppointmentDate

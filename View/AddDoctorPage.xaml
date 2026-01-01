@@ -17,7 +17,7 @@
                     <VerticalStackLayout Spacing="5">
                         <Label Text="Họ và tên bác sĩ" TextColor="#546E7A" FontSize="13" FontAttributes="Bold"/>
                         <Border Stroke="#CFD8DC" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,0" HeightRequest="45">
-                            <Entry Text="{Binding DoctorName}" Placeholder="Nhập họ và tên..." PlaceholderColor="#B0BEC5" TextColor="#333" VerticalOptions="Center"/>
+                            <Entry Text="{Binding DoctorName}" PlaceholderColor="#B0BEC5" TextColor="#333" VerticalOptions="Center"/>
                         </Border>
                     </VerticalStackLayout>
 
@@ -31,14 +31,14 @@
                     <VerticalStackLayout Spacing="5">
                         <Label Text="Email" TextColor="#546E7A" FontSize="13" FontAttributes="Bold"/>
                         <Border Stroke="#CFD8DC" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,0" HeightRequest="45">
-                            <Entry Text="{Binding Email}" Placeholder="example@mail.com" Keyboard="Email" PlaceholderColor="#B0BEC5" TextColor="#333" VerticalOptions="Center"/>
+                            <Entry Text="{Binding Email}"  Keyboard="Email" PlaceholderColor="#B0BEC5" TextColor="#333" VerticalOptions="Center"/>
                         </Border>
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Spacing="5">
                         <Label Text="Mật khẩu" TextColor="#546E7A" FontSize="13" FontAttributes="Bold"/>
                         <Border Stroke="#CFD8DC" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,0" HeightRequest="45">
-                            <Entry Text="{Binding Password}" IsPassword="True" Placeholder="******" PlaceholderColor="#B0BEC5" TextColor="#333" VerticalOptions="Center"/>
+                            <Entry Text="{Binding Password}" IsPassword="True"  PlaceholderColor="#B0BEC5" TextColor="#333" VerticalOptions="Center"/>
                         </Border>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
@@ -59,7 +59,7 @@
                         <VerticalStackLayout Grid.Column="1" Spacing="5">
                             <Label Text="Khoa trực thuộc" TextColor="#546E7A" FontSize="13" FontAttributes="Bold"/>
                             <Border Stroke="#CFD8DC" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="5,0" HeightRequest="45">
-                                <Picker Title="Chọn khoa" 
+                                <Picker
                                         ItemsSource="{Binding Departments}"
                                         ItemDisplayBinding="{Binding DepartmentName}"
                                         SelectedItem="{Binding SelectedDepartment}"
@@ -81,10 +81,10 @@
                         <VerticalStackLayout Spacing="15">
                             <Grid ColumnDefinitions="80, *" VerticalOptions="Center">
                                 <Label Text="Ngày:" VerticalOptions="Center" FontAttributes="Bold" TextColor="#333"/>
-                                <Border Grid.Column="1" Stroke="#B0BEC5" StrokeThickness="1" StrokeShape="RoundRectangle 5" BackgroundColor="White" Padding="10,0" HeightRequest="40">
-                                    <Picker Title="Chọn thứ trong tuần" 
+                                <Border Grid.Column="1" Stroke="#B0BEC5" StrokeThickness="1" StrokeShape="RoundRectangle " BackgroundColor="White" Padding="10,0" HeightRequest="40">
+                                    <Picker 
                                             ItemsSource="{Binding DaysList}"
-                                            SelectedIndex="{Binding SelectedDayIndex}"
+                                            SelectedItem="{Binding SelectedDay}"
                                             TextColor="#333"/>
                                 </Border>
                             </Grid>

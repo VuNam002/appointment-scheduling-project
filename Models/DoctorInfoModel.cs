@@ -3,6 +3,7 @@
     public class DoctorInfoModel
     {
         public int DoctorId { get; set; }
+        public int AccountId { get; set; }
         public string DoctorName { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
