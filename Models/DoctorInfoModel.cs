@@ -13,6 +13,8 @@
 
         public DepartmentModel Department { get; set; }
 
+public List<DoctorScheduleModel> Schedules { get; set; }
+
         // Thuộc tính tiện ích để binding trực tiếp
         public string DepartmentName => Department?.DepartmentName;
     }

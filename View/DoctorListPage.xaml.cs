@@ -1,26 +1,35 @@
 ﻿using ProjectMaui.Models;
+using ProjectMaui.Services;
+using ProjectMaui.View;
 using ProjectMaui.ViewModels;
+using System;
 
-namespace ProjectMaui.View;
-
-public partial class DoctorListPage : ContentPage
+namespace ProjectMaui.View
 {
-    public DoctorListPage(DoctorListViewModel viewModel)
+    public partial class DoctorListPage : ContentPage
     {
-        InitializeComponent();
-        BindingContext = viewModel;
-    }
+        public DoctorListPage(DoctorListViewModel viewModel)
+        {
+            InitializeComponent();
+            BindingContext = viewModel;
+        }
 
-    private async void OnDoctorTapped(object sender, EventArgs e)
-    {
-        var frame = (Frame)sender;
-        var doctor = (DoctorInfoModel)frame.BindingContext;
+        private async void OnDoctorTapped(object sender, EventArgs e)
+        {
+            if (sender is not Frame frame || frame.BindingContext is not DoctorInfoModel doctor)
+                return;
 
-        // Hiệu ứng animation khi tap
-        await frame.ScaleTo(0.95, 50);
-        await frame.ScaleTo(1, 50);
+            await frame.ScaleTo(0.95, 50);
+            await frame.ScaleTo(1, 50);
 
-        // Navigate to booking page with doctor info
-        await Navigation.PushAsync(new BookingPage(doctor));
+            if (UserSession.Current.Role == "Admin")
+            {
+                await Shell.Current.GoToAsync($"{nameof(DoctorDetailPage)}?doctorId={doctor.DoctorId}");
+            }
+            else
+            {
+                await Navigation.PushAsync(new BookingPage(doctor));
+            }
+        }
     }
 }

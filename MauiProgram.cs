@@ -29,13 +29,14 @@ namespace ProjectMaui
             builder.Services.AddSingleton<PatientService>();
             builder.Services.AddSingleton<AuthService>();
             builder.Services.AddSingleton<AppointmentRepository>();
-            builder.Services.AddSingleton<AppointmentService>(); // Đã xóa dòng trùng lặp
+            builder.Services.AddSingleton<AppointmentService>(); 
 
             // --- 2. ĐĂNG KÝ VIEWMODELS (Logic giao diện) ---
             builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddTransient<DoctorListViewModel>();
             builder.Services.AddTransient<AppointmentListViewModel>();
             builder.Services.AddTransient<AppointmentDetailViewModel>();
+            builder.Services.AddTransient<DoctorDetailViewModel>();
 
             // Nếu bạn có các ViewModel này (dựa trên các file .xaml của bạn), hãy bỏ comment ra:
             // builder.Services.AddTransient<AddDoctorViewModel>();
@@ -47,6 +48,7 @@ namespace ProjectMaui
             builder.Services.AddTransient<AppointmentListPage>();
             builder.Services.AddTransient<AppointmentDetailPage>();
             builder.Services.AddTransient<DoctorListPage>();
+            builder.Services.AddTransient<DoctorDetailPage>();
 
             // Nếu bạn có các Page này, hãy bỏ comment ra:
             // builder.Services.AddTransient<AddDoctorPage>();

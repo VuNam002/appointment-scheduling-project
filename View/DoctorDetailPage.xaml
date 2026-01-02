@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:ProjectMaui.Models"
+             xmlns:viewmodels="clr-namespace:ProjectMaui.ViewModels"
+             x:Class="ProjectMaui.View.DoctorDetailPage"
+             x:DataType="viewmodels:DoctorDetailViewModel"
+             x:Name="DoctorDetailPageRoot"
+             Title="Chỉnh Sửa Thông Tin Bác Sĩ"
+             BackgroundColor="#F5F7FA">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="20">
+
+            <Frame CornerRadius="15" HasShadow="True" BorderColor="Transparent" Padding="20" BackgroundColor="White">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Thông tin cơ bản" FontSize="16" FontAttributes="Bold" TextColor="#1565C0" Margin="0,0,0,5"/>
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Họ và tên bác sĩ" TextColor="#546E7A" FontSize="13" FontAttributes="Bold"/>
+                        <Border Stroke="#CFD8DC" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,0" HeightRequest="45">
+                            <Entry Text="{Binding DoctorName}" PlaceholderColor="#B0BEC5" TextColor="#333" VerticalOptions="Center"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Số điện thoại / Username" TextColor="#546E7A" FontSize="13" FontAttributes="Bold"/>
+                        <Border Stroke="#CFD8DC" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,0" HeightRequest="45">
+                            <Entry Text="{Binding Phone}" Placeholder="" Keyboard="Telephone" PlaceholderColor="#B0BEC5" TextColor="#333" VerticalOptions="Center"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Email" TextColor="#546E7A" FontSize="13" FontAttributes="Bold"/>
+                        <Border Stroke="#CFD8DC" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,0" HeightRequest="45">
+                            <Entry Text="{Binding Email}"  Keyboard="Email" PlaceholderColor="#B0BEC5" TextColor="#333" VerticalOptions="Center"/>
+                        </Border>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame CornerRadius="15" HasShadow="True" BorderColor="Transparent" Padding="20" BackgroundColor="White">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Công tác và Chuyên môn" FontSize="16" FontAttributes="Bold" TextColor="#1565C0" Margin="0,0,0,5"/>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                        <VerticalStackLayout Grid.Column="0" Spacing="5">
+                            <Label Text="Chuyên môn" TextColor="#546E7A" FontSize="13" FontAttributes="Bold"/>
+                            <Border Stroke="#CFD8DC" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="12,0" HeightRequest="45">
+                                <Entry Text="{Binding Specialization}" Placeholder="VD: Tim mạch" PlaceholderColor="#B0BEC5" TextColor="#333" VerticalOptions="Center"/>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="5">
+                            <Label Text="Khoa trực thuộc" TextColor="#546E7A" FontSize="13" FontAttributes="Bold"/>
+                            <Border Stroke="#CFD8DC" StrokeThickness="1" StrokeShape="RoundRectangle 8" Padding="5,0" HeightRequest="45">
+                                <Picker
+                                        ItemsSource="{Binding Departments}"
+                                        ItemDisplayBinding="{Binding DepartmentName}"
+                                        SelectedItem="{Binding SelectedDepartment}"
+                                        TextColor="#333"
+                                        TitleColor="#B0BEC5"
+                                        VerticalOptions="Center"
+                                        HorizontalOptions="FillAndExpand"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame CornerRadius="15" HasShadow="True" BorderColor="Transparent" Padding="20" BackgroundColor="White">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Thiết lập lịch làm việc" FontSize="16" FontAttributes="Bold" TextColor="#1565C0"/>
+
+                    <Border Stroke="#E1F5FE" StrokeThickness="1" StrokeShape="RoundRectangle 10" BackgroundColor="#F1F8E9" Padding="15">
+                        <VerticalStackLayout Spacing="15">
+                            <Grid ColumnDefinitions="80, *" VerticalOptions="Center">
+                                <Label Text="Ngày:" VerticalOptions="Center" FontAttributes="Bold" TextColor="#333"/>
+                                <Border Grid.Column="1" Stroke="#B0BEC5" StrokeThickness="1" StrokeShape="RoundRectangle " BackgroundColor="White" Padding="10,0" HeightRequest="40">
+                                    <Picker 
+                                            ItemsSource="{Binding DaysList}"
+                                            SelectedItem="{Binding SelectedDay}"
+                                            TextColor="#333"/>
+                                </Border>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*, Auto, *" ColumnSpacing="10" VerticalOptions="Center">
+                                <VerticalStackLayout Spacing="5">
+                                    <Label Text="Bắt đầu" FontSize="11" TextColor="#666" HorizontalOptions="Center"/>
+                                    <Border Stroke="#B0BEC5" StrokeThickness="1" StrokeShape="RoundRectangle 5" BackgroundColor="White" Padding="5,0" HeightRequest="40">
+                                        <TimePicker Time="{Binding StartTime}" Format="HH:mm" HorizontalOptions="Center" TextColor="#333"/>
+                                    </Border>
+                                </VerticalStackLayout>
+
+                                <Label Grid.Column="1" Text="-" VerticalOptions="Center" TextColor="#999" FontSize="18"/>
+
+                                <VerticalStackLayout Grid.Column="2" Spacing="5">
+                                    <Label Text="Kết thúc" FontSize="11" TextColor="#666" HorizontalOptions="Center"/>
+                                    <Border Stroke="#B0BEC5" StrokeThickness="1" StrokeShape="RoundRectangle 5" BackgroundColor="White" Padding="5,0" HeightRequest="40">
+                                        <TimePicker Time="{Binding EndTime}" Format="HH:mm" HorizontalOptions="Center" TextColor="#333"/>
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Button Text="Thêm khung giờ" 
+                                    Command="{Binding AddScheduleCommand}" 
+                                    BackgroundColor="#29B6F6" 
+                                    FontAttributes="Bold"
+                                    TextColor="White" 
+                                    CornerRadius="20"
+                                    HeightRequest="40"
+                                    Margin="0,5,0,0"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <VerticalStackLayout>
+                        <Label Text="Lịch đã chọn:" FontAttributes="Bold" TextColor="#333" Margin="0,10,0,5">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding PendingSchedules.Count}" Value="0">
+                                    <Setter Property="IsVisible" Value="False" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+
+                        <CollectionView ItemsSource="{Binding PendingSchedules}" HeightRequest="150">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:DoctorScheduleModel">
+                                    <Grid Padding="0,5">
+                                        <Frame Padding="15,10" BorderColor="#E3F2FD" BackgroundColor="#E3F2FD" CornerRadius="10" HasShadow="False">
+                                            <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                                    <Label Text="{Binding DayOfWeek, Converter={StaticResource DayOfWeekConverter}}" FontAttributes="Bold" TextColor="#0277BD" FontSize="15"/>
+                                                    <Label TextColor="#455A64" FontSize="13">
+                                                        <Label.FormattedText>
+                                                            <FormattedString>
+                                                                <Span Text="{Binding StartTime, StringFormat='{0:hh\:mm}'}"/>
+                                                                <Span Text=" - "/>
+                                                                <Span Text="{Binding EndTime, StringFormat='{0:hh\:mm}'}"/>
+                                                            </FormattedString>
+                                                        </Label.FormattedText>
+                                                    </Label>
+                                                </VerticalStackLayout>
+
+                                                <Button Grid.Column="1" 
+                                                        Text="X" 
+                                                        BackgroundColor="#FFEBEE" 
+                                                        TextColor="#D32F2F" 
+                                                        HeightRequest="36" 
+                                                        WidthRequest="36"
+                                                        CornerRadius="18"
+                                                        Padding="0"
+                                                        FontSize="14"
+                                                        FontAttributes="Bold"
+                                                        Command="{Binding BindingContext.RemoveScheduleCommand, Source={x:Reference DoctorDetailPageRoot}}"
+                                                        CommandParameter="{Binding .}"/>
+                                            </Grid>
+                                        </Frame>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,10,0,30">
+                <Button Grid.Column="0"
+                        Text="Cập nhật" 
+                        Command="{Binding UpdateDoctorCommand}" 
+                        IsEnabled="{Binding IsNotLoading}" 
+                        BackgroundColor="#1565C0"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        CornerRadius="25"
+                        HeightRequest="50"/>
+
+                <Button Grid.Column="1"
+                        Text="Xóa"
+                        Command="{Binding DeleteDoctorCommand}"
+                        IsEnabled="{Binding IsNotLoading}"
+                        BackgroundColor="#E74C3C"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        CornerRadius="25"
+                        HeightRequest="50"
+                        IsVisible="{Binding IsAdmin}"/>
+            </Grid>
+
+            <ActivityIndicator IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" Color="#1565C0" HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

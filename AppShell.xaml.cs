@@ -10,6 +10,7 @@ namespace ProjectMaui
             InitializeComponent();
             Routing.RegisterRoute(nameof(AppointmentDetailPage), typeof(AppointmentDetailPage));
             Routing.RegisterRoute(nameof(AddDoctorPage), typeof(AddDoctorPage));
+            Routing.RegisterRoute(nameof(DoctorDetailPage), typeof(DoctorDetailPage));
             
         }
         public void SetupTabsForRole()
