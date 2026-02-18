@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             
+             xmlns:constants="clr-namespace:ProjectMaui.Constants"
              x:Class="ProjectMaui.View.MainPage"
-             
              Title="Cá nhân"
              BackgroundColor="#F5F5F5">
     <Shell.TitleView>
@@ -19,32 +18,29 @@
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
 
-            <Frame CornerRadius="20" HasShadow="True" BackgroundColor="White" Padding="20">
+            <Frame CornerRadius="20" HasShadow="True" BackgroundColor="{x:Static constants:AppColors.WhiteSmoke}" Padding="20">
                 <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
                     <Image x:Name="imgAvatar" Source="user_icon.png" HeightRequest="100" WidthRequest="100" Aspect="AspectFit"/>
-
-                    <Label Text="XIN CHÀO!" FontSize="16" TextColor="Gray" HorizontalOptions="Center"/>
-
+                    <Label Text="XIN CHÀO!" FontSize="16" TextColor="{x:Static constants:AppColors.Gray}" HorizontalOptions="Center"/>
                     <Label x:Name="lblWelcome"
                            Text="..."
                            FontSize="22" 
                            FontAttributes="Bold"
                            TextColor="#2C3E50"
                            HorizontalOptions="Center"/>
-                    
+
                     <Label x:Name="lblPhone"
                            Text="..."
                            FontSize="16" 
-                           TextColor="Gray"
+                           TextColor="{x:Static constants:AppColors.Gray}"
                            HorizontalOptions="Center"/>
-
                 </VerticalStackLayout>
             </Frame>
 
             <Button x:Name="btnAddDoctor"
                     Text="Thêm Bác sĩ"
-                    BackgroundColor="#3498DB"
-                    TextColor="White"
+                    BackgroundColor="{x:Static constants:AppColors.SkyBlue}"
+                    TextColor="{x:Static constants:AppColors.White}"
                     FontAttributes="Bold"
                     CornerRadius="10"
                     HeightRequest="50"
@@ -52,8 +48,8 @@
                     IsVisible="False"/>
 
             <Button Text="Đăng xuất"
-                    BackgroundColor="#E74C3C"
-                    TextColor="White"
+                    BackgroundColor="{x:Static constants:AppColors.Red}"
+                    TextColor="{x:Static constants:AppColors.White}"
                     FontAttributes="Bold"
                     CornerRadius="10"
                     HeightRequest="50"

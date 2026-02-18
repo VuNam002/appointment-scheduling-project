@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProjectMaui.View.LoginPage"
+             xmlns:constants="clr-namespace:ProjectMaui.Constants"
              Title="Đăng nhập"
              Shell.NavBarIsVisible="False">
     <ScrollView>
@@ -15,7 +16,7 @@
                    FontSize="24"
                    FontAttributes="Bold"
                    HorizontalOptions="Center"
-                   TextColor="#2C3E50"/>
+                   TextColor="{x:Static constants:AppColors.Logo}"/>
 
             <VerticalStackLayout Spacing="15" Margin="0,30,0,0">
 
@@ -31,19 +32,19 @@
 
                 <Button Text="Đăng nhập"
                         Command="{Binding LoginCommand}"
-                        BackgroundColor="#3498DB"
+                        BackgroundColor="{x:Static constants:AppColors.PrimaryBlue}"
                         FontAttributes="Bold"
                         CornerRadius="25"
                         HeightRequest="50"/>
 
                 <ActivityIndicator IsRunning="{Binding IsLoading}" 
                                    IsVisible="{Binding IsLoading}"
-                                   Color="#3498DB"/>
+                                   Color="{x:Static constants:AppColors.PrimaryBlue}"/>
 
             </VerticalStackLayout>
 
             <Label Text="Chưa có tài khoản? Đăng ký ngay"
-                   TextColor="#3498DB"
+                   TextColor="{x:Static constants:AppColors.PrimaryBlue}"
                    HorizontalOptions="Center"
                    TextDecorations="Underline">
                 <Label.GestureRecognizers>

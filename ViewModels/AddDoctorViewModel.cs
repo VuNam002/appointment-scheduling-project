@@ -73,7 +73,6 @@ namespace ProjectMaui.ViewModels
             set => SetProperty(ref _departments, value);
         }
 
-        // Danh sách lịch làm việc đang chờ thêm
         public ObservableCollection<DoctorScheduleModel> PendingSchedules
         {
             get => _pendingSchedules;
@@ -82,7 +81,6 @@ namespace ProjectMaui.ViewModels
 
         public List<string> DaysList { get; } = new List<string> { "Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7" };
 
-        // Thêm các thuộc tính cho lịch làm việc
         private string _selectedDay = "Thứ 2";
         public string SelectedDay
         {
@@ -207,12 +205,10 @@ namespace ProjectMaui.ViewModels
 
             IsLoading = true;
 
-            // 1. Tạo bác sĩ và lấy ID
             var result = await _authService.RegisterDoctorAsync(DoctorName, Phone, Password, SelectedDepartment.DepartmentId, Specialization);
 
             if (string.IsNullOrEmpty(result.ErrorMessage))
             {
-                // 2. Nếu thành công, thêm danh sách lịch làm việc cho bác sĩ đó
                 foreach (var schedule in PendingSchedules)
                 {
                     schedule.DoctorId = result.NewDoctorId;
@@ -221,8 +217,6 @@ namespace ProjectMaui.ViewModels
 
                 IsLoading = false;
                 await Application.Current.MainPage.DisplayAlert("Thành công", "Thêm bác sĩ và lịch làm việc thành công.", "OK");
-                
-                // Optionally, navigate back or clear the form
                 DoctorName = string.Empty;
                 Phone = string.Empty;
                 Email = string.Empty;

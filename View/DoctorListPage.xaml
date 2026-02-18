@@ -148,7 +148,7 @@
                                     </Label.FormattedText>
                                 </Label>
                             </VerticalStackLayout>
-                            
+
                             <Button Grid.Column="2"
                                     Text="Xóa"
                                     BackgroundColor="#E74C3C"
@@ -159,7 +159,6 @@
                                     Command="{Binding BindingContext.DeleteDoctorCommand, Source={x:Reference ThisPage}}"
                                     CommandParameter="{Binding .}"
                                     IsVisible="{Binding BindingContext.IsAdmin, Source={x:Reference ThisPage}}"/>
-
                         </Grid>
                     </Frame>
                 </DataTemplate>

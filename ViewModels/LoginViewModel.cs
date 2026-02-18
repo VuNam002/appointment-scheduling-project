@@ -42,7 +42,6 @@ namespace ProjectMaui.ViewModels
             IsLoading = true;
             try
             {
-                // Gọi Service kiểm tra DB
                 bool isSuccess = await _authService.LoginAsync(Phone, Password);
 
                 if (isSuccess)

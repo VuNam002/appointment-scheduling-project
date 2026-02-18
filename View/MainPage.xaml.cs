@@ -52,11 +52,7 @@ public partial class MainPage : ContentPage
         bool answer = await DisplayAlert("Đăng xuất", "Bạn có chắc muốn đăng xuất?", "Có", "Không");
         if (answer)
         {
-            // 1. Xóa dữ liệu phiên làm việc
             UserSession.Current.Clear();
-
-            // 2. Chuyển hướng về trang Login
-            // Dấu "///" giúp reset lại ngăn xếp điều hướng, người dùng không thể bấm Back để quay lại đây
             await Shell.Current.GoToAsync("//LoginPage");
         }
     }
